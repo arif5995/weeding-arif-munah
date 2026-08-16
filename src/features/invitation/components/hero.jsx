@@ -68,7 +68,9 @@ export default function Hero() {
               "flex flex-col items-center p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-brand-accent-soft",
             )}
           >
-            <span className={cn("text-xl sm:text-2xl font-bold text-brand-primary")}>
+            <span
+              className={cn("text-xl sm:text-2xl font-bold text-brand-primary")}
+            >
               {timeLeft[interval]}
             </span>
             <span className={cn("text-xs text-gray-500 capitalize")}>
@@ -185,11 +187,11 @@ export default function Hero() {
             variants={fadeUp}
             className={cn("relative max-w-md mx-auto")}
           >
-<div
-                  className={cn(
-                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-brand-accent to-transparent",
-                  )}
-                />
+            <div
+              className={cn(
+                "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-brand-accent to-transparent",
+              )}
+            />
 
             <div
               className={cn(

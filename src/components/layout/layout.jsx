@@ -89,9 +89,7 @@ const Layout = ({ children, audioControls }) => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className={cn(
-                "fixed bottom-24 left-1/2 -translate-x-1/2 z-50",
-              )}
+              className={cn("fixed bottom-24 left-1/2 -translate-x-1/2 z-50")}
             >
               <div
                 className={cn(
@@ -106,9 +104,9 @@ const Layout = ({ children, audioControls }) => {
             </motion.div>
           )}
         </AnimatePresence>
-        </motion.div>
-      </PhoneFrame>
-    );
+      </motion.div>
+    </PhoneFrame>
+  );
 };
 
 export default Layout;

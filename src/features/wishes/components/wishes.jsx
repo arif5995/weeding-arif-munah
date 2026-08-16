@@ -251,9 +251,7 @@ export default function Wishes() {
                 <MessageCircle
                   className={cn("w-12 h-12 text-gray-300 mx-auto mb-4")}
                 />
-                <p className={cn("text-gray-500")}>
-                  {t("wishes.emptyState")}
-                </p>
+                <p className={cn("text-gray-500")}>{t("wishes.emptyState")}</p>
               </div>
             )}
 
@@ -578,7 +576,9 @@ export default function Wishes() {
                         )}
                       >
                         <User className={cn("w-4 h-4")} />
-                        <label htmlFor="guest-name">{t("wishes.nameLabel")}</label>
+                        <label htmlFor="guest-name">
+                          {t("wishes.nameLabel")}
+                        </label>
                       </div>
                       <input
                         type="text"
@@ -628,7 +628,9 @@ export default function Wishes() {
                         className={cn("sr-only")}
                         aria-hidden="true"
                       >
-                        <option value="">{t("wishes.attendancePlaceholder")}</option>
+                        <option value="">
+                          {t("wishes.attendancePlaceholder")}
+                        </option>
                         {options.map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
@@ -711,7 +713,9 @@ export default function Wishes() {
                         )}
                       >
                         <MessageCircle className={cn("w-4 h-4")} />
-                        <label htmlFor="wish-message">{t("wishes.wishLabel")}</label>
+                        <label htmlFor="wish-message">
+                          {t("wishes.wishLabel")}
+                        </label>
                       </div>
                       <textarea
                         id="wish-message"

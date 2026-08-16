@@ -107,7 +107,9 @@ export default function Location() {
                   </div>
 
                   <div className={cn("flex items-center space-x-4")}>
-                    <CalendarCheck className={cn("w-5 h-5 text-brand-primary")} />
+                    <CalendarCheck
+                      className={cn("w-5 h-5 text-brand-primary")}
+                    />
                     <p className={cn("text-gray-600")}>
                       {formatEventDate(config.date)}
                     </p>
@@ -132,7 +134,9 @@ export default function Location() {
                       )}
                     >
                       <ExternalLink className={cn("w-3.5 h-3.5")} />
-                      <span className={cn("font-semibold")}>{t("location.viewMap")}</span>
+                      <span className={cn("font-semibold")}>
+                        {t("location.viewMap")}
+                      </span>
                     </motion.a>
                   </div>
                 </div>

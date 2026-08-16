@@ -215,7 +215,10 @@ END:VCALENDAR`;
           <div className={cn("space-y-3")}>
             <CalendarButton
               icon={(props) => (
-                <Globe {...props} className={cn("w-5 h-5 text-brand-primary")} />
+                <Globe
+                  {...props}
+                  className={cn("w-5 h-5 text-brand-primary")}
+                />
               )}
               label={t("events.googleCalendar")}
               onClick={() => window.open(googleCalendarLink(), "_blank")}

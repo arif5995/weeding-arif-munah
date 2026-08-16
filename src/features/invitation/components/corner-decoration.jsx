@@ -67,11 +67,7 @@ const CornerDecoration = ({
             "h-auto",
           )}
           loading="lazy"
-          animate={
-            reduceMotion
-              ? undefined
-              : { rotate: [-2, 2, -2] }
-          }
+          animate={reduceMotion ? undefined : { rotate: [-2, 2, -2] }}
           transition={
             reduceMotion
               ? undefined
@@ -91,11 +87,7 @@ const CornerDecoration = ({
             "h-auto",
           )}
           loading="lazy"
-          animate={
-            reduceMotion
-              ? undefined
-              : { rotate: [-2, 2, -2] }
-          }
+          animate={reduceMotion ? undefined : { rotate: [-2, 2, -2] }}
           transition={
             reduceMotion
               ? undefined

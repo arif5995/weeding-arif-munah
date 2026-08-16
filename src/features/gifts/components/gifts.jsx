@@ -174,7 +174,9 @@ export default function Gifts() {
                           <Copy className={cn("w-4 h-4")} />
                         )}
                         <span className={cn("text-sm")}>
-                          {copiedAccount === account.bank ? t("gifts.copied") : t("gifts.copy")}
+                          {copiedAccount === account.bank
+                            ? t("gifts.copied")
+                            : t("gifts.copy")}
                         </span>
                       </motion.button>
                     </div>
