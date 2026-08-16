@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "New Icon Script";
+  src: url("/fonts/New-Icon-Script.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
@@ -34,6 +42,8 @@
   --radius-lg: var(--radius);
   --font-sans: "Outfit", sans-serif;
   --font-serif: "Instrument Serif", serif;
+  --font-script: "New Icon Script", cursive;
+  --font-fahkwang: "Fahkwang", sans-serif;
   --animate-marquee: marquee var(--duration) infinite linear;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
 

@@ -13,7 +13,9 @@
   },
   "landing": {
     "saveTheDate": "Save the Date",
-    "openInvitation": "Open Invitation"
+    "openInvitation": "Open Invitation",
+    "invitedTo": "You Are Invited To The Wedding Of",
+    "receptionToFollow": "Reception to follow"
   },
   "hero": {
     "marriageTitle": "InsyaAllah We Are Getting Married",

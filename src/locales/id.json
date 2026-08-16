@@ -13,7 +13,9 @@
   },
   "landing": {
     "saveTheDate": "Catat Tanggal Penting Ini",
-    "openInvitation": "Buka Undangan"
+    "openInvitation": "Buka Undangan",
+    "invitedTo": "Anda Diundang Ke Pernikahan",
+    "receptionToFollow": "Resepsi selanjutnya"
   },
   "hero": {
     "marriageTitle": "InsyaAllah Kami Akan Menikah",

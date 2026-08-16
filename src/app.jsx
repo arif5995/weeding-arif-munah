@@ -77,8 +77,8 @@ function App() {
 
   useMeta(activeConfig);
 
-  // Show error state
-  if (error) {
+  // Show error state only if we have no config at all
+  if (error && !config && !staticConfig.data) {
     return (
       <div
         className={cn(
@@ -87,7 +87,7 @@ function App() {
       >
         <div className={cn("text-center max-w-md mx-auto p-6")}>
           <div className={cn("text-rose-500 text-6xl mb-4")}>!</div>
-          <h1 className={cn("text-2xl font-serif text-gray-800 mb-2")}>
+          <h1 className={cn("text-2xlfont-fahkwang  text-gray-800 mb-2")}>
             Invitation Not Found
           </h1>
           <p className={cn("text-gray-600 mb-4")}>{error}</p>
@@ -103,7 +103,7 @@ function App() {
     <LanguageProvider language={activeConfig?.language || "en"}>
       {/* Loading overlay with exit animation */}
       <AnimatePresence>
-        {isLoading && (
+        {isLoading && !config && (
           <motion.div
             key="loading-screen"
             initial={{ y: 0, opacity: 1 }}
@@ -121,7 +121,7 @@ function App() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 1, ease: "easeOut" }}
                 className={cn(
-                  "font-serif text-xs text-gray-400 tracking-[6px] uppercase",
+                  "font-fahkwang text-xs text-gray-400 tracking-[6px] uppercase",
                 )}
               >
                 Preparing
@@ -149,7 +149,7 @@ function App() {
             <div className={cn("text-center")}>
               <p
                 className={cn(
-                  "font-serif text-xs text-gray-400 tracking-[6px] uppercase",
+                  "font-fahkwang text-xs text-gray-400 tracking-[6px] uppercase",
                 )}
               >
                 Preparing

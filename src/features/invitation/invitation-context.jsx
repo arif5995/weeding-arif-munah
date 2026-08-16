@@ -140,6 +140,8 @@ export function InvitationProvider({ children }) {
     },
     enabled: !!invitationUid,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    retry: 1,
+    throwOnError: false,
   });
 
   return (

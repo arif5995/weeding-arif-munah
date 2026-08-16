@@ -21,7 +21,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run dev:client & bun run server & wait",
+    "dev": "concurrently \"bun run dev:client\" \"bun run server\"",
     "dev:client": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -40,7 +40,7 @@
     "test:unit": "vitest run src/server/**/*.spec.js",
     "test:e2e": "vitest run e2e/**/*.e2e.spec.js",
     "test:coverage": "vitest run --coverage",
-    "prepare": "bun run scripts/install-hooks.sh"
+    "prepare": "bun run scripts/install-hooks.js"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.8",
@@ -63,6 +63,8 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.10",
+    "concurrently": "^10.0.5",
     "eslint": "^10.7.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -71,7 +73,6 @@
     "postcss": "^8.5.17",
     "prettier": "^3.9.5",
     "tailwindcss": "^4.3.2",
-    "@vitest/coverage-v8": "^4.1.10",
     "vite": "^8.1.4",
     "vitest": "^4.1.10",
     "wrangler": "^4.110.0"

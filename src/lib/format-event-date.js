@@ -105,3 +105,51 @@ export const formatEventDate = (
 
   return formatted;
 };
+
+/**
+ * Formats a date string into separate date parts for flexible layout
+ * @param {string} isoString - The ISO date string to format
+ * @param {boolean} [isJakartaTime=false] - Whether the input is already in Jakarta time
+ * @returns {object} Object with { day, date, month, year } properties
+ *
+ * @example
+ * // returns { day: "Saturday", date: "14", month: "December", year: "2024" }
+ * formatEventDateParts("2024-12-14T00:00:00.000Z")
+ */
+export const formatEventDateParts = (
+  isoString,
+  isJakartaTime = false,
+) => {
+  let date = new Date(isoString);
+
+  if (isJakartaTime && isoString && !isoString.endsWith("Z")) {
+    date = new Date(isoString + "Z");
+  }
+
+  const dayFormatter = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "Asia/Jakarta",
+  });
+
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+
+  const monthFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    timeZone: "Asia/Jakarta",
+  });
+
+  const yearFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+
+  return {
+    day: dayFormatter.format(date),
+    date: dateFormatter.format(date),
+    month: monthFormatter.format(date),
+    year: yearFormatter.format(date),
+  };
+};
