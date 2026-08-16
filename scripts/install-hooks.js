@@ -26,7 +26,7 @@ for (const hook of ["pre-commit", "pre-push"]) {
 
   if (existsSync(source)) {
     cpSync(source, destination);
-    
+
     // chmod only matters on Unix-like systems,
     // but harmless to attempt where supported.
     try {

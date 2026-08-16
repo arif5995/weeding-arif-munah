@@ -46,10 +46,7 @@ const LandingPage = ({ onOpenInvitation }) => {
           className={cn("w-full max-w-md space-y-6 sm:space-y-8")}
         >
           {/* Bismillah Image */}
-          <motion.div
-            variants={fade}
-            className={cn("flex justify-center")}
-          >
+          <motion.div variants={fade} className={cn("flex justify-center")}>
             <img
               src="/images/bismillah.png"
               alt="Bismillah"
@@ -59,19 +56,26 @@ const LandingPage = ({ onOpenInvitation }) => {
 
           {/* Invited Text */}
           <motion.div variants={fadeUp} className={cn("text-center")}>
-            <p className={cn("font-fahkwang text-center text-gray-700 text-sm sm:text-base")}>
+            <p
+              className={cn(
+                "font-fahkwang text-center text-gray-700 text-sm sm:text-base",
+              )}
+            >
               {t("landing.invitedTo")}
             </p>
           </motion.div>
 
           {/* Couple Names */}
-          <motion.div
-            variants={fadeUp}
-            className={cn("text-center space-y-2")}
-          >
-            <div className={cn("font-script text-4xl sm:text-5xl md:text-6xl text-gray-800 leading-tight space-y-1")}>
+          <motion.div variants={fadeUp} className={cn("text-center space-y-2")}>
+            <div
+              className={cn(
+                "font-script text-4xl sm:text-5xl md:text-6xl text-gray-800 leading-tight space-y-1",
+              )}
+            >
               <div>{config.groomName}</div>
-              <div className={cn("font-fahkwang text-lg sm:text-xl text-gray-500")}>
+              <div
+                className={cn("font-fahkwang text-lg sm:text-xl text-gray-500")}
+              >
                 &
               </div>
               <div>{config.brideName}</div>
@@ -79,19 +83,26 @@ const LandingPage = ({ onOpenInvitation }) => {
           </motion.div>
 
           {/* Date Block */}
-          <motion.div
-            variants={fadeUp}
-            className={cn("text-center space-y-3")}
-          >
+          <motion.div variants={fadeUp} className={cn("text-center space-y-3")}>
             {/* Bulan */}
-            <p className={cn("font-fahkwang text-xs tracking-[4px] uppercase text-gray-600")}>
+            <p
+              className={cn(
+                "font-fahkwang text-xs tracking-[4px] uppercase text-gray-600",
+              )}
+            >
               {dateParts.month}
             </p>
 
             {/* Bagian Hari, Garis, Tanggal, dan Waktu */}
-            <div className={cn("flex items-center justify-center gap-4 sm:gap-6")}>
+            <div
+              className={cn("flex items-center justify-center gap-4 sm:gap-6")}
+            >
               {/* Hari (Rata kanan agar rapi mendekati garis) */}
-              <span className={cn("font-fahkwang text-sm sm:text-base uppercase text-gray-600 text-right w-24 sm:w-28")}>
+              <span
+                className={cn(
+                  "font-fahkwang text-sm sm:text-base uppercase text-gray-600 text-right w-24 sm:w-28",
+                )}
+              >
                 {dateParts.day}
               </span>
 
@@ -99,7 +110,11 @@ const LandingPage = ({ onOpenInvitation }) => {
               <span className={cn("border-l border-amber-400 h-10 sm:h-12")} />
 
               {/* Tanggal Utama (Dibuat jauh lebih besar dan di-center) */}
-              <span className={cn("font-fahkwang text-5xl sm:text-6xl font-semibold text-emerald-800 text-center w-20 sm:w-24")}>
+              <span
+                className={cn(
+                  "font-fahkwang text-5xl sm:text-6xl font-semibold text-emerald-800 text-center w-20 sm:w-24",
+                )}
+              >
                 {dateParts.date}
               </span>
 
@@ -107,7 +122,11 @@ const LandingPage = ({ onOpenInvitation }) => {
               <span className={cn("border-r border-amber-400 h-10 sm:h-12")} />
 
               {/* Waktu (Rata kiri agar seimbang) */}
-              <span className={cn("font-fahkwang text-xs sm:text-sm uppercase text-gray-600 text-left w-28 sm:w-36")}>
+              <span
+                className={cn(
+                  "font-fahkwang text-xs sm:text-sm uppercase text-gray-600 text-left w-28 sm:w-36",
+                )}
+              >
                 {config.time}
               </span>
             </div>
@@ -119,7 +138,10 @@ const LandingPage = ({ onOpenInvitation }) => {
           </motion.div>
 
           {/* Address & City */}
-          <motion.div variants={fadeUp} className={cn("text-center space-y-0.5")}>
+          <motion.div
+            variants={fadeUp}
+            className={cn("text-center space-y-0.5")}
+          >
             <p className={cn("font-fahkwang text-sm text-gray-600")}>
               {config.address}
             </p>
@@ -130,7 +152,11 @@ const LandingPage = ({ onOpenInvitation }) => {
 
           {/* Reception to Follow */}
           <motion.div variants={fadeUp} className={cn("text-center")}>
-            <p className={cn("font-script italic text-center text-lg text-gray-500")}>
+            <p
+              className={cn(
+                "font-script italic text-center text-lg text-gray-500",
+              )}
+            >
               {t("landing.receptionToFollow")}
             </p>
           </motion.div>

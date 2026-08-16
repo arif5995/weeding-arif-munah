@@ -116,10 +116,7 @@ export const formatEventDate = (
  * // returns { day: "Saturday", date: "14", month: "December", year: "2024" }
  * formatEventDateParts("2024-12-14T00:00:00.000Z")
  */
-export const formatEventDateParts = (
-  isoString,
-  isJakartaTime = false,
-) => {
+export const formatEventDateParts = (isoString, isJakartaTime = false) => {
   let date = new Date(isoString);
 
   if (isJakartaTime && isoString && !isoString.endsWith("Z")) {
