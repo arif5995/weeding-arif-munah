@@ -108,6 +108,25 @@ export const pageExit = {
   transition: { duration: DURATION.slow, ease: EASE.inOut },
 };
 
+/**
+ * Entrance dengan sedikit rotasi & scale untuk elemen dekoratif (bunga/daun).
+ */
+export const swayIn = {
+  hidden: { opacity: 0, scale: 0.7, rotate: -8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    rotate: 0,
+    transition: { duration: DURATION.slow, ease: EASE.out },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.7,
+    rotate: 8,
+    transition: { duration: DURATION.base, ease: EASE.inOut },
+  },
+};
+
 // ============ Helpers ============
 
 /**
@@ -143,9 +162,10 @@ const REDUCED = {
   scaleIn: fade,
   pageEnter: { hidden: { opacity: 0 }, visible: { opacity: 1 } },
   pageExit: { opacity: 0 },
+  swayIn: fade,
 };
 
-const FULL = { fade, fadeUp, scaleIn, pageEnter, pageExit };
+const FULL = { fade, fadeUp, scaleIn, pageEnter, pageExit, swayIn };
 
 /**
  * Returns whether the user has requested reduced motion.
@@ -159,7 +179,7 @@ export function useReducedMotionFlag() {
  * Returns a motion variant preset by name, automatically swapping to an
  * opacity-only / instant equivalent when the user prefers reduced motion.
  *
- * @param {'fade'|'fadeUp'|'scaleIn'|'pageEnter'|'pageExit'} name
+ * @param {'fade'|'fadeUp'|'scaleIn'|'pageEnter'|'pageExit'|'swayIn'} name
  * @returns {object} The variant object appropriate for the user's preference
  */
 export function useMotionPreset(name) {

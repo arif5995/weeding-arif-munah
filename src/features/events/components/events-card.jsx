@@ -168,7 +168,7 @@ END:VCALENDAR`;
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={cn(
-              "text-rose-500 hover:text-rose-600 transition-colors",
+              "text-brand-primary hover:text-brand-primary-hover transition-colors",
             )}
             onClick={() => setShowCalendarModal(true)}
           >
@@ -177,18 +177,18 @@ END:VCALENDAR`;
         </div>
         <div className={cn("space-y-3 text-gray-600")}>
           <div className={cn("flex items-center space-x-3")}>
-            <Calendar className={cn("w-5 h-5 text-rose-500")} />
+            <Calendar className={cn("w-5 h-5 text-brand-primary")} />
             <span>{formatEventDate(eventData.date)}</span>
           </div>
           <div className={cn("flex items-center space-x-3")}>
-            <Clock className={cn("w-5 h-5 text-rose-500")} />
+            <Clock className={cn("w-5 h-5 text-brand-primary")} />
             <span>
               {eventData.startTime?.substring(0, 5) || eventData.startTime} -{" "}
               {eventData.endTime?.substring(0, 5) || eventData.endTime}
             </span>
           </div>
           <div className={cn("flex items-center space-x-3")}>
-            <MapPin className={cn("w-5 h-5 text-rose-500")} />
+            <MapPin className={cn("w-5 h-5 text-brand-primary")} />
             <span>{eventData.location}</span>
           </div>
         </div>
@@ -215,7 +215,7 @@ END:VCALENDAR`;
           <div className={cn("space-y-3")}>
             <CalendarButton
               icon={(props) => (
-                <Globe {...props} className={cn("w-5 h-5 text-rose-500")} />
+                <Globe {...props} className={cn("w-5 h-5 text-brand-primary")} />
               )}
               label={t("events.googleCalendar")}
               onClick={() => window.open(googleCalendarLink(), "_blank")}

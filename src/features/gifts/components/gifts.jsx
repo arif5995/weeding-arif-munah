@@ -47,14 +47,14 @@ export default function Gifts() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium")}
+              className={cn("inline-block text-brand-primary font-medium")}
             >
               {t("gifts.subTitle")}
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
-              className={cn("text-4xl md:text-5xl font-serif text-gray-800")}
+              className={cn("text-4xl md:text-5xl font-script text-gray-800")}
             >
               {t("gifts.title")}
             </motion.h2>
@@ -64,9 +64,9 @@ export default function Gifts() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 pt-4")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <Gift className={cn("w-5 h-5 text-rose-400")} />
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
+              <Gift className={cn("w-5 h-5 text-brand-primary/60")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
             </motion.div>
 
             {/* Message Container */}
@@ -97,9 +97,9 @@ export default function Gifts() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-3 pt-4")}
             >
-              <div className={cn("h-px w-8 bg-rose-200/50")} />
-              <div className={cn("w-1.5 h-1.5 rounded-full bg-rose-300")} />
-              <div className={cn("h-px w-8 bg-rose-200/50")} />
+              <div className={cn("h-px w-8 bg-brand-accent/50")} />
+              <div className={cn("w-1.5 h-1.5 rounded-full bg-brand-accent")} />
+              <div className={cn("h-px w-8 bg-brand-accent/50")} />
             </motion.div>
           </motion.div>
 
@@ -118,12 +118,12 @@ export default function Gifts() {
               >
                 <div
                   className={cn(
-                    "absolute inset-0 bg-gradient-to-r from-rose-100/50 to-pink-100/50 rounded-2xl transform transition-transform group-hover:scale-105 duration-300",
+                    "absolute inset-0 bg-gradient-to-r from-brand-accent-soft/50 to-brand-accent-soft/50 rounded-2xl transform transition-transform group-hover:scale-105 duration-300",
                   )}
                 />
                 <div
                   className={cn(
-                    "relative backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-rose-100/50 shadow-lg",
+                    "relative backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-brand-accent-soft/50 shadow-lg",
                   )}
                 >
                   <div className={cn("flex items-center justify-between")}>
@@ -134,7 +134,7 @@ export default function Gifts() {
                         )}
                       >
                         <Building2
-                          className={cn("w-full h-full text-rose-500")}
+                          className={cn("w-full h-full text-brand-primary")}
                         />
                       </div>
                       <div>
@@ -146,7 +146,7 @@ export default function Gifts() {
                         </p>
                       </div>
                     </div>
-                    <Wallet className={cn("w-5 h-5 text-rose-400")} />
+                    <Wallet className={cn("w-5 h-5 text-brand-primary/60")} />
                   </div>
 
                   <div className={cn("mt-4")}>
@@ -165,7 +165,7 @@ export default function Gifts() {
                           copyToClipboard(account.accountNumber, account.bank)
                         }
                         className={cn(
-                          "flex items-center space-x-1 text-rose-500 hover:text-rose-600",
+                          "flex items-center space-x-1 text-brand-primary hover:text-brand-primary-hover",
                         )}
                       >
                         {copiedAccount === account.bank ? (

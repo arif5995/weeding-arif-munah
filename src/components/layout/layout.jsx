@@ -5,6 +5,7 @@ import { useConfig } from "@/features/invitation/hooks/use-config";
 import BottomBar from "@/components/layout/bottom-bar";
 import { useMotionPreset } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import PhoneFrame from "./phone-frame";
 
 /**
  * Layout component that wraps the main invitation content.
@@ -40,15 +41,9 @@ const Layout = ({ children, audioControls }) => {
   }, [isPlaying, config.audio?.toastDuration]);
 
   return (
-    <div
-      className={cn(
-        "relative min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center",
-      )}
-    >
+    <PhoneFrame>
       <motion.div
-        className={cn(
-          "mx-auto w-full max-w-[430px] min-h-screen bg-white relative overflow-hidden border border-gray-200 shadow-lg",
-        )}
+        className={cn("min-h-screen bg-brand-bg relative overflow-hidden")}
         variants={fade}
         initial="hidden"
         animate="visible"
@@ -63,12 +58,12 @@ const Layout = ({ children, audioControls }) => {
             whileTap={{ scale: 0.9 }}
             onClick={toggle}
             className={cn(
-              "absolute top-4 right-4 z-50 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg border border-rose-100/50",
+              "absolute top-4 right-4 z-50 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg border border-brand-accent-soft/50",
             )}
           >
             {isPlaying ? (
               <div className={cn("relative")}>
-                <PauseCircle className={cn("w-6 h-6 text-rose-500")} />
+                <PauseCircle className={cn("w-6 h-6 text-brand-primary")} />
                 <span
                   className={cn(
                     "absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse",
@@ -76,7 +71,7 @@ const Layout = ({ children, audioControls }) => {
                 />
               </div>
             ) : (
-              <PlayCircle className={cn("w-6 h-6 text-rose-500")} />
+              <PlayCircle className={cn("w-6 h-6 text-brand-primary")} />
             )}
           </motion.button>
         )}
@@ -111,9 +106,9 @@ const Layout = ({ children, audioControls }) => {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
-    </div>
-  );
+        </motion.div>
+      </PhoneFrame>
+    );
 };
 
 export default Layout;

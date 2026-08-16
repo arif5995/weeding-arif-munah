@@ -10,6 +10,7 @@ import {
 } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import CornerDecoration from "./corner-decoration";
+import PhoneFrame from "@/components/layout/phone-frame";
 
 const LandingPage = ({ onOpenInvitation }) => {
   const config = useConfig(); // Use hook to get config from API or fallback to static
@@ -21,12 +22,13 @@ const LandingPage = ({ onOpenInvitation }) => {
   const dateParts = formatEventDateParts(config.date);
 
   return (
-    <motion.div
-      variants={fade}
-      initial="hidden"
-      animate="visible"
-      className={cn("min-h-screen relative overflow-hidden bg-[#faf7f2]")}
-    >
+    <PhoneFrame>
+      <motion.div
+        variants={fade}
+        initial="hidden"
+        animate="visible"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
       {/* Corner Decorations */}
       <CornerDecoration position="top-left" variant="leaf" />
       <CornerDecoration position="top-right" variant="flower" />
@@ -107,19 +109,19 @@ const LandingPage = ({ onOpenInvitation }) => {
               </span>
 
               {/* Garis Vertikal Kiri (Tinggi disesuaikan dengan ukuran teks tanggal) */}
-              <span className={cn("border-l border-amber-400 h-10 sm:h-12")} />
+              <span className={cn("border-l border-brand-accent h-10 sm:h-12")} />
 
               {/* Tanggal Utama (Dibuat jauh lebih besar dan di-center) */}
               <span
                 className={cn(
-                  "font-fahkwang text-5xl sm:text-6xl font-semibold text-emerald-800 text-center w-20 sm:w-24",
+                  "font-fahkwang text-5xl sm:text-6xl font-semibold text-brand-primary text-center w-20 sm:w-24",
                 )}
               >
                 {dateParts.date}
               </span>
 
               {/* Garis Vertikal Kanan */}
-              <span className={cn("border-r border-amber-400 h-10 sm:h-12")} />
+              <span className={cn("border-r border-brand-accent h-10 sm:h-12")} />
 
               {/* Waktu (Rata kiri agar seimbang) */}
               <span
@@ -168,7 +170,7 @@ const LandingPage = ({ onOpenInvitation }) => {
               whileTap={{ scale: 0.98 }}
               onClick={onOpenInvitation}
               className={cn(
-                "group relative w-full bg-emerald-800 text-white px-6 py-3 sm:px-8 sm:py-3 rounded-xl font-medium shadow-lg hover:bg-emerald-900 transition-all duration-200",
+                "group relative w-full bg-brand-primary text-white px-6 py-3 sm:px-8 sm:py-3 rounded-xl font-medium shadow-lg hover:bg-brand-primary-hover transition-all duration-200",
               )}
             >
               <span
@@ -190,14 +192,15 @@ const LandingPage = ({ onOpenInvitation }) => {
               </span>
               <div
                 className={cn(
-                  "absolute inset-0 bg-gradient-to-r from-emerald-900 to-emerald-800 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+                  "absolute inset-0 bg-gradient-to-r from-brand-primary-hover to-brand-primary rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200",
                 )}
               />
             </motion.button>
           </motion.div>
         </motion.div>
       </div>
-    </motion.div>
+      </motion.div>
+    </PhoneFrame>
   );
 };
 

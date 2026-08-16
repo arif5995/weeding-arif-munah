@@ -30,14 +30,14 @@ export default function Location() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium")}
+              className={cn("inline-block text-brand-primary font-medium")}
             >
               {t("location.eventVenue")}
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
-              className={cn("text-4xl md:text-5xl font-serif text-gray-800")}
+              className={cn("text-4xl md:text-5xl font-script text-gray-800")}
             >
               {t("location.title")}
             </motion.h2>
@@ -47,9 +47,9 @@ export default function Location() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 pt-4")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <MapPin className={cn("w-5 h-5 text-rose-400")} />
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
+              <MapPin className={cn("w-5 h-5 text-brand-primary/60")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
             </motion.div>
           </motion.div>
 
@@ -100,21 +100,21 @@ export default function Location() {
 
                 <div className={cn("space-y-4")}>
                   <div className={cn("flex items-start space-x-4")}>
-                    <MapPin className={cn("w-5 h-5 text-rose-500 mt-1")} />
+                    <MapPin className={cn("w-5 h-5 text-brand-primary mt-1")} />
                     <p className={cn("text-gray-600 flex-1")}>
                       {config.address}
                     </p>
                   </div>
 
                   <div className={cn("flex items-center space-x-4")}>
-                    <CalendarCheck className={cn("w-5 h-5 text-rose-500")} />
+                    <CalendarCheck className={cn("w-5 h-5 text-brand-primary")} />
                     <p className={cn("text-gray-600")}>
                       {formatEventDate(config.date)}
                     </p>
                   </div>
 
                   <div className={cn("flex items-center space-x-4")}>
-                    <Clock className={cn("w-5 h-5 text-rose-500")} />
+                    <Clock className={cn("w-5 h-5 text-brand-primary")} />
                     <p className={cn("text-gray-600")}>{config.time}</p>
                   </div>
 

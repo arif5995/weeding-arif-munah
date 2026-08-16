@@ -65,10 +65,10 @@ export default function Hero() {
             initial="hidden"
             animate="visible"
             className={cn(
-              "flex flex-col items-center p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-rose-100",
+              "flex flex-col items-center p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-brand-accent-soft",
             )}
           >
-            <span className={cn("text-xl sm:text-2xl font-bold text-rose-600")}>
+            <span className={cn("text-xl sm:text-2xl font-bold text-brand-primary")}>
               {timeLeft[interval]}
             </span>
             <span className={cn("text-xs text-gray-500 capitalize")}>
@@ -86,10 +86,10 @@ export default function Hero() {
         size: Math.floor(Math.random() * 2) + 8,
         color:
           i % 3 === 0
-            ? "text-rose-400"
+            ? "text-brand-primary/70"
             : i % 3 === 1
-              ? "text-pink-400"
-              : "text-red-400",
+              ? "text-brand-accent"
+              : "text-brand-primary",
         initialX:
           typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
         animateX:
@@ -155,7 +155,7 @@ export default function Hero() {
           <motion.div variants={scaleIn} className={cn("inline-block mx-auto")}>
             <span
               className={cn(
-                "px-4 py-1 text-sm bg-rose-50 text-rose-600 rounded-full border border-rose-200",
+                "px-4 py-1 text-sm bg-brand-accent-soft text-brand-primary rounded-full border border-brand-accent",
               )}
             >
               {t("landing.saveTheDate")}
@@ -174,7 +174,7 @@ export default function Hero() {
             <motion.h2
               variants={scaleIn}
               className={cn(
-                "text-3xl sm:text-5xl font-serif bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600",
+                "text-3xl sm:text-5xl font-script text-brand-primary",
               )}
             >
               {config.groomName} & {config.brideName}
@@ -185,15 +185,15 @@ export default function Hero() {
             variants={fadeUp}
             className={cn("relative max-w-md mx-auto")}
           >
-            <div
-              className={cn(
-                "absolute inset-0 bg-gradient-to-b from-rose-50/50 to-white/50 backdrop-blur-md rounded-2xl",
-              )}
-            />
+<div
+                  className={cn(
+                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-brand-accent to-transparent",
+                  )}
+                />
 
             <div
               className={cn(
-                "relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-rose-100/50",
+                "relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-brand-accent-soft/50",
               )}
             >
               <div
@@ -203,7 +203,7 @@ export default function Hero() {
               >
                 <div
                   className={cn(
-                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent",
+                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-brand-accent to-transparent",
                   )}
                 />
               </div>
@@ -214,7 +214,7 @@ export default function Hero() {
                     variants={fade}
                     className={cn("flex items-center justify-center space-x-2")}
                   >
-                    <Calendar className={cn("w-4 h-4 text-rose-400")} />
+                    <Calendar className={cn("w-4 h-4 text-brand-primary/60")} />
                     <span
                       className={cn(
                         "text-gray-700 font-medium text-sm sm:text-base",
@@ -228,7 +228,7 @@ export default function Hero() {
                     variants={fade}
                     className={cn("flex items-center justify-center space-x-2")}
                   >
-                    <Clock className={cn("w-4 h-4 text-rose-400")} />
+                    <Clock className={cn("w-4 h-4 text-brand-primary/60")} />
                     <span
                       className={cn(
                         "text-gray-700 font-medium text-sm sm:text-base",
@@ -240,9 +240,9 @@ export default function Hero() {
                 </div>
 
                 <div className={cn("flex items-center justify-center gap-3")}>
-                  <div className={cn("h-px w-8 sm:w-12 bg-rose-200/50")} />
-                  <div className={cn("w-2 h-2 rounded-full bg-rose-200")} />
-                  <div className={cn("h-px w-8 sm:w-12 bg-rose-200/50")} />
+                  <div className={cn("h-px w-8 sm:w-12 bg-brand-accent/50")} />
+                  <div className={cn("w-2 h-2 rounded-full bg-brand-accent")} />
+                  <div className={cn("h-px w-8 sm:w-12 bg-brand-accent/50")} />
                 </div>
 
                 <motion.div variants={fade} className={cn("space-y-2")}>
@@ -252,7 +252,7 @@ export default function Hero() {
                   <p className={cn("text-gray-600 font-medium text-sm")}>
                     {t("hero.guestSalutation")}
                   </p>
-                  <p className={cn("text-rose-500 font-semibold text-lg")}>
+                  <p className={cn("text-brand-primary font-semibold text-lg")}>
                     {guestName || t("hero.guestFallback")}
                   </p>
                 </motion.div>
@@ -265,7 +265,7 @@ export default function Hero() {
               >
                 <div
                   className={cn(
-                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent",
+                    "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-brand-accent to-transparent",
                   )}
                 />
               </div>
@@ -273,12 +273,12 @@ export default function Hero() {
 
             <div
               className={cn(
-                "absolute -top-2 -right-2 w-16 sm:w-24 h-16 sm:h-24 bg-rose-100/20 rounded-full blur-xl",
+                "absolute -top-2 -right-2 w-16 sm:w-24 h-16 sm:h-24 bg-brand-accent-soft/20 rounded-full blur-xl",
               )}
             />
             <div
               className={cn(
-                "absolute -bottom-2 -left-2 w-16 sm:w-24 h-16 sm:h-24 bg-rose-100/20 rounded-full blur-xl",
+                "absolute -bottom-2 -left-2 w-16 sm:w-24 h-16 sm:h-24 bg-brand-accent-soft/20 rounded-full blur-xl",
               )}
             />
           </motion.div>
@@ -308,7 +308,7 @@ export default function Hero() {
             >
               <Heart
                 className={cn(
-                  "w-10 sm:w-12 h-10 sm:h-12 text-rose-500 mx-auto",
+                  "w-10 sm:w-12 h-10 sm:h-12 text-brand-primary mx-auto",
                 )}
                 fill="currentColor"
               />

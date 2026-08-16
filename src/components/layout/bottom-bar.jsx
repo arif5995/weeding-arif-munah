@@ -164,7 +164,7 @@ const BottomBar = () => {
                     className={cn(
                       "h-[18px] w-[18px] sm:h-5 sm:w-5 mb-0.5 sm:mb-1 transition-all duration-300",
                       active === item.id
-                        ? "stroke-rose-500 stroke-[2.5px]"
+                        ? "stroke-brand-primary stroke-[2.5px]"
                         : "stroke-gray-600 stroke-2",
                     )}
                   />
@@ -173,7 +173,7 @@ const BottomBar = () => {
                   className={cn(
                     "text-[10px] sm:text-xs font-medium transition-all duration-300 line-clamp-1",
                     active === item.id
-                      ? "text-rose-500 font-semibold"
+                      ? "text-brand-primary font-semibold"
                       : "text-gray-600",
                   )}
                   animate={{

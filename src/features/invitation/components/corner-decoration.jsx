@@ -1,10 +1,15 @@
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useMotionPreset, useReducedMotionFlag } from "@/lib/motion";
 
 const CornerDecoration = ({
   position,
   variant = "flower-leaf",
   customOffset = {},
 }) => {
+  const reduceMotion = useReducedMotionFlag();
+  const swayIn = useMotionPreset("swayIn");
+
   // 1. Konfigurasi posisi dasar dan transformasi (flip/rotasi)
   const positionClasses = {
     "top-left": "top-0 left-0 flex-row",
@@ -32,7 +37,11 @@ const CornerDecoration = ({
   };
 
   return (
-    <div
+    <motion.div
+      variants={swayIn}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
       className={cn(
         "absolute pointer-events-none select-none z-0 flex items-start",
         "gap-1 sm:gap-2",
@@ -50,7 +59,7 @@ const CornerDecoration = ({
     >
       {/* Tampilkan gambar daun jika variant adalah "leaf" atau "flower-leaf" */}
       {(variant === "leaf" || variant === "flower-leaf") && (
-        <img
+        <motion.img
           src="/images/leaf-white.png"
           alt=""
           className={cn(
@@ -58,12 +67,23 @@ const CornerDecoration = ({
             "h-auto",
           )}
           loading="lazy"
+          animate={
+            reduceMotion
+              ? undefined
+              : { rotate: [-2, 2, -2] }
+          }
+          transition={
+            reduceMotion
+              ? undefined
+              : { duration: 4, repeat: Infinity, ease: "easeInOut" }
+          }
+          style={{ transformOrigin: "top center" }}
         />
       )}
 
       {/* Tampilkan gambar bunga jika variant adalah "flower" atau "flower-leaf" */}
       {(variant === "flower" || variant === "flower-leaf") && (
-        <img
+        <motion.img
           src="/images/flower-white.png"
           alt=""
           className={cn(
@@ -71,9 +91,20 @@ const CornerDecoration = ({
             "h-auto",
           )}
           loading="lazy"
+          animate={
+            reduceMotion
+              ? undefined
+              : { rotate: [-2, 2, -2] }
+          }
+          transition={
+            reduceMotion
+              ? undefined
+              : { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
+          }
+          style={{ transformOrigin: "top center" }}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 

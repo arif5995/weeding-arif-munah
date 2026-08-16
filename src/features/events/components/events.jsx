@@ -37,7 +37,7 @@ export default function Events() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium mb-2")}
+              className={cn("inline-block text-brand-primary font-medium mb-2")}
             >
               {t("events.saveTheDate")}
             </motion.span>
@@ -45,7 +45,7 @@ export default function Events() {
             <motion.h2
               variants={fadeUp}
               className={cn(
-                "text-4xl md:text-5xl font-serif text-gray-800 leading-tight",
+                "text-4xl md:text-5xl font-script text-gray-800 leading-tight",
               )}
             >
               {t("events.title")}
@@ -63,11 +63,11 @@ export default function Events() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 mt-6")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <div className={cn("text-rose-400")}>
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
+              <div className={cn("text-brand-primary/60")}>
                 <Heart className={cn("w-4 h-4")} fill="currentColor" />
               </div>
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
             </motion.div>
           </motion.div>
 

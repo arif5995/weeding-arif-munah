@@ -199,14 +199,14 @@ export default function Wishes() {
           >
             <motion.span
               variants={fadeUp}
-              className={cn("inline-block text-rose-500 font-medium")}
+              className={cn("inline-block text-brand-primary font-medium")}
             >
               {t("wishes.subTitle")}
             </motion.span>
 
             <motion.h2
               variants={fadeUp}
-              className={cn("text-4xl md:text-5xl font-serif text-gray-800")}
+              className={cn("text-4xl md:text-5xl font-script text-gray-800")}
             >
               {t("wishes.title")}
             </motion.h2>
@@ -216,9 +216,9 @@ export default function Wishes() {
               variants={scaleIn}
               className={cn("flex items-center justify-center gap-4 pt-4")}
             >
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
-              <MessageCircle className={cn("w-5 h-5 text-rose-400")} />
-              <div className={cn("h-[1px] w-12 bg-rose-200")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
+              <MessageCircle className={cn("w-5 h-5 text-brand-primary/60")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
             </motion.div>
           </motion.div>
 
@@ -235,7 +235,7 @@ export default function Wishes() {
                     repeat: Infinity,
                     repeatType: "reverse",
                   }}
-                  className={cn("h-px bg-rose-600")}
+                  className={cn("h-px bg-brand-primary")}
                 />
               </div>
             )}
@@ -281,14 +281,14 @@ export default function Wishes() {
                       {/* Background gradient */}
                       <div
                         className={cn(
-                          "absolute inset-0 bg-gradient-to-br from-rose-100/60 to-pink-100/60 rounded-2xl transform transition-transform group-hover:scale-[1.02] duration-300",
+                          "absolute inset-0 bg-gradient-to-br from-brand-accent-soft/60 to-brand-accent-soft/60 rounded-2xl transform transition-transform group-hover:scale-[1.02] duration-300",
                         )}
                       />
 
                       {/* Card content */}
                       <div
                         className={cn(
-                          "relative h-full backdrop-blur-sm bg-white/90 p-4 rounded-2xl border border-rose-100/50 shadow-md flex flex-col",
+                          "relative h-full backdrop-blur-sm bg-white/90 p-4 rounded-2xl border border-brand-accent-soft/50 shadow-md flex flex-col",
                         )}
                       >
                         {/* Header */}
@@ -297,7 +297,7 @@ export default function Wishes() {
                           <div className={cn("flex-shrink-0")}>
                             <div
                               className={cn(
-                                "w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-sm font-semibold shadow-sm",
+                                "w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-hover flex items-center justify-center text-white text-sm font-semibold shadow-sm",
                               )}
                             >
                               {wish.name[0].toUpperCase()}
@@ -337,7 +337,7 @@ export default function Wishes() {
                             3600000 && (
                             <span
                               className={cn(
-                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-xs font-medium",
+                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-brand-accent-soft text-brand-primary text-xs font-medium",
                               )}
                             >
                               New
@@ -392,7 +392,7 @@ export default function Wishes() {
                     {/* Modal Header */}
                     <div
                       className={cn(
-                        "sticky top-0 bg-gradient-to-br from-rose-50 to-pink-50 p-6 border-b border-rose-100",
+                        "sticky top-0 bg-gradient-to-br from-brand-accent-soft to-brand-accent-soft p-6 border-b border-brand-accent-soft",
                       )}
                     >
                       <div className={cn("flex items-center justify-between")}>
@@ -400,7 +400,7 @@ export default function Wishes() {
                           {/* Avatar */}
                           <div
                             className={cn(
-                              "w-16 h-16 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-2xl font-semibold shadow-lg",
+                              "w-16 h-16 rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-hover flex items-center justify-center text-white text-2xl font-semibold shadow-lg",
                             )}
                           >
                             {selectedWish.name[0].toUpperCase()}
@@ -488,7 +488,7 @@ export default function Wishes() {
                       <button
                         onClick={() => setSelectedWish(null)}
                         className={cn(
-                          "px-6 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-medium transition-colors",
+                          "px-6 py-2 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-lg font-medium transition-colors",
                         )}
                       >
                         {t("wishes.close")}
@@ -530,7 +530,7 @@ export default function Wishes() {
               <form onSubmit={handleSubmitWish} className={cn("relative")}>
                 <div
                   className={cn(
-                    "backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-rose-100/50 shadow-lg",
+                    "backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-brand-accent-soft/50 shadow-lg",
                   )}
                 >
                   {/* Error Message */}
@@ -596,7 +596,7 @@ export default function Wishes() {
                           "w-full px-4 py-2.5 rounded-xl border transition-all duration-200 text-gray-700 placeholder-gray-400",
                           isNameFromInvitation
                             ? "bg-gray-100 border-gray-200 cursor-not-allowed opacity-75"
-                            : "bg-white/50 border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50",
+                            : "bg-white/50 border-brand-accent-soft focus:border-brand-accent focus:ring focus:ring-brand-accent focus:ring-opacity-50",
                         )}
                         required
                       />
@@ -644,7 +644,7 @@ export default function Wishes() {
                         aria-expanded={isOpen}
                         aria-controls="attendance-dropdown"
                         className={cn(
-                          "w-full px-4 py-2.5 rounded-xl bg-white/50 border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 transition-all duration-200 text-left flex items-center justify-between",
+                          "w-full px-4 py-2.5 rounded-xl bg-white/50 border border-brand-accent-soft focus:border-brand-accent focus:ring focus:ring-brand-accent focus:ring-opacity-50 transition-all duration-200 text-left flex items-center justify-between",
                         )}
                       >
                         <span
@@ -675,7 +675,7 @@ export default function Wishes() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             className={cn(
-                              "absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-rose-100 overflow-hidden",
+                              "absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-brand-accent-soft overflow-hidden",
                             )}
                           >
                             {options.map((option) => (
@@ -687,13 +687,13 @@ export default function Wishes() {
                                   setIsOpen(false);
                                 }}
                                 whileHover={{
-                                  backgroundColor: "rgb(255, 241, 242)",
+                                  backgroundColor: "rgb(232, 220, 196)", // brand-accent-soft
                                 }}
                                 className={cn(
                                   "w-full px-4 py-2.5 text-left transition-colors",
                                   attendance === option.value
-                                    ? "bg-rose-50 text-rose-600"
-                                    : "text-gray-700 hover:bg-rose-50",
+                                    ? "bg-brand-accent-soft text-brand-primary"
+                                    : "text-gray-700 hover:bg-brand-accent-soft",
                                 )}
                               >
                                 {option.label}
@@ -720,7 +720,7 @@ export default function Wishes() {
                         value={newWish}
                         onChange={(e) => setNewWish(e.target.value)}
                         className={cn(
-                          "w-full h-32 p-4 rounded-xl bg-white/50 border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 resize-none transition-all duration-200",
+                          "w-full h-32 p-4 rounded-xl bg-white/50 border border-brand-accent-soft focus:border-brand-accent focus:ring focus:ring-brand-accent focus:ring-opacity-50 resize-none transition-all duration-200",
                         )}
                         required
                       />
@@ -740,7 +740,7 @@ export default function Wishes() {
                         "w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-white font-medium transition-all duration-200",
                         createWishMutation.isPending
                           ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-rose-500 hover:bg-rose-600",
+                          : "bg-brand-primary hover:bg-brand-primary-hover",
                       )}
                     >
                       {createWishMutation.isPending ? (
