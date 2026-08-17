@@ -28,7 +28,7 @@ app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: ["*"],
+    origin: "*",
     allowMethods: ["GET", "POST", "PUT", "DELETE"],
   }),
 );
