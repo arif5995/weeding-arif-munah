@@ -1,164 +1,203 @@
-# Planning: Update Lokasi Maps & Verifikasi Auto-Scroll Wishes
+# Planning: Deploy ke Vercel
 
+> **Konteks penting**: Project ini awalnya didesain untuk Cloudflare Workers (ada `wrangler.jsonc.example`). Untuk deploy ke Vercel, kita restrukturisasi sedikit — **bukan ganti bahasa/framework**, cuma nambah 1 file "jembatan" supaya Hono app-nya bisa jalan sebagai Vercel Serverless Function.
 > **Dikerjakan oleh**: Junior developer / AI coding assistant gratis.
-> **Prinsip**: Task 1 murni ganti data (bukan kode), Task 2 murni verifikasi+tuning (fiturnya sudah ada di kode, cek kenapa belum "kerasa" jalan).
+> **Info baru**: Vercel sekarang punya dukungan native/zero-config untuk Hono (per update mereka), jadi prosesnya nggak seribet dulu — cukup 1 file entry point yang benar.
 
 ---
 
-## TASK 1 — Arahkan Location & "View Map" ke Lokasi yang Benar
+## 0. Gambaran Besar
 
-### 0. Info Lokasi (Sudah Di-resolve dari Link Kamu)
-
-Link `https://maps.app.goo.gl/EZKBfxrbutNNCLnq6` mengarah ke koordinat:
 ```
-Latitude:  -7.5917916
-Longitude: 112.7671249
+Vercel (1 project, 2 bagian):
+├── Frontend (Vite build) → static files, di-serve dari CDN Vercel
+└── Backend (Hono app)    → jadi Serverless Function, jalan di /api/*
 ```
 
-> ⚠️ **Catatan**: nama tempat yang terdaftar di pin itu adalah *"Jasa pengetikan, desain dan pembuatan aplikasi mobile dan web MAHA"* — kelihatannya ini pin lokasi rumah/kantor, bukan nama venue pernikahan. **Sesuaikan `location` (nama tempat) dan `address` (alamat teks) secara manual** dengan nama venue yang sebenarnya — jangan pakai nama itu apa adanya. Koordinatnya tetap dipakai (itu yang menentukan titik di peta), cuma teks nama tempatnya yang perlu diganti.
+Database **tetap Supabase** — tidak ada yang berubah di sisi database. Vercel cuma nge-host frontend + backend-nya.
 
-### 1.1. Kenapa Ini Task Data, Bukan Kode
+---
 
-Cek `src/features/location/components/location.jsx` — komponen ini **sudah** pakai 2 field dari config buat nampilin map:
-```jsx
-<iframe src={config.maps_embed} ... />   // <- peta yang ke-embed di halaman
-...
-<motion.a href={config.maps_url} ...>    // <- tombol "View Map"
-```
-Kedua-duanya baca dari `config` (data undangan). Jadi **cukup update isi datanya**, kode tidak perlu diubah sama sekali.
+## TASK 1 — Buat "Jembatan" Backend ke Vercel Serverless Function
 
-### 1.2. Siapkan Nilai Baru
+Vercel otomatis mendeteksi file di folder `/api` sebagai Serverless Function. Kita buat 1 file yang nge-re-export Hono app yang sudah ada (`src/server/index.js`), **tidak perlu duplikasi/tulis ulang route apapun**.
 
-**`maps_url`** (dipakai tombol "View Map" — boleh pakai link pendek apa adanya):
-```
-https://maps.app.goo.gl/EZKBfxrbutNNCLnq6
-```
-
-**`maps_embed`** (dipakai `<iframe>` buat nampilin peta langsung di halaman — format ini **tidak butuh API key Google**, tinggal pakai koordinat):
-```
-https://www.google.com/maps?q=-7.5917916,112.7671249&z=17&output=embed
-```
-
-> Kalau nanti mau ganti ke lokasi lain, cukup ganti 2 angka setelah `q=` (format: `latitude,longitude`), angka `z=17` itu level zoom (boleh diubah 1–20, makin besar makin dekat/zoom-in).
-
-### 1.3. Update Data — Pilih Sesuai Sumber Data Kamu
-
-**Kalau data undangan kamu dari Supabase (database):**
-
-Jalankan lewat `psql` atau Supabase SQL Editor (ganti `test-wedding` sesuai `uid` undangan kamu):
-```sql
-UPDATE invitations
-SET
-  maps_url = 'https://maps.app.goo.gl/EZKBfxrbutNNCLnq6',
-  maps_embed = 'https://www.google.com/maps?q=-7.5917916,112.7671249&z=17&output=embed',
-  location = 'Nama Venue Kamu',           -- GANTI sesuai nama venue asli
-  address = 'Alamat lengkap venue kamu'   -- GANTI sesuai alamat asli
-WHERE uid = 'test-wedding';
-```
-
-**Kalau masih pakai data statis fallback** (`src/config/config.js`):
-
-Buka file itu, cari baris `maps_url` dan `maps_embed`, ganti jadi:
+**1.1.** Buat folder `api` di root project (sejajar dengan `src`), buat file `api/[[...route]].js`:
 ```js
-maps_url: "https://maps.app.goo.gl/EZKBfxrbutNNCLnq6",
-maps_embed:
-  "https://www.google.com/maps?q=-7.5917916,112.7671249&z=17&output=embed",
-location: "Nama Venue Kamu",       // GANTI
-address: "Alamat lengkap venue",   // GANTI
+import { handle } from "hono/vercel";
+import app from "../src/server/index.js";
+
+// PENTING: jangan set runtime "edge" — project ini pakai library `pg`
+// (koneksi database Postgres langsung), yang butuh Node.js runtime,
+// tidak jalan di Edge runtime. Biarkan default (Node.js).
+
+export const GET = handle(app);
+export const POST = handle(app);
+export const PUT = handle(app);
+export const DELETE = handle(app);
+export const PATCH = handle(app);
 ```
 
-### 1.4. Verifikasi
+> **Kenapa nama filenya `[[...route]].js`?** Ini konvensi "catch-all route" Vercel — supaya SEMUA path di bawah `/api/*` (misal `/api/invitation/test-wedding`, `/api/test-wedding/wishes`) diarahkan ke function yang sama ini. Hono app kita sendiri yang nanti nentuin routing detailnya di dalam (`app.route("/api", api)` di `src/server/index.js` — ini **tidak perlu diubah**).
 
-1. Refresh browser, scroll ke section **Location**.
-2. Peta yang tampil di `<iframe>` harus nunjukkin titik yang sama persis dengan link Maps yang kamu kasih.
-3. Klik tombol **"View Map"** — harus buka tab baru ke `https://maps.app.goo.gl/EZKBfxrbutNNCLnq6`, dan lokasinya sama dengan yang di-embed.
-4. Cek nama venue & alamat yang tampil di section itu sudah benar (bukan nama "Jasa pengetikan..." dari pin asli).
+**1.2.** Cek `hono/vercel` sudah tersedia — ini bagian dari package `hono` yang sudah ter-install (bukan package terpisah), jadi tidak perlu `bun add` apapun.
 
 **Acceptance criteria Task 1:**
-- Peta ter-embed dan tombol "View Map" mengarah ke **titik koordinat yang sama persis**.
-- Nama venue & alamat yang tertulis sudah sesuai venue pernikahan asli, bukan nama default dari pin Google Maps.
+- File `api/[[...route]].js` ada dan isinya sesuai di atas.
+- `src/server/index.js` **tidak diubah sama sekali** (tetap `export default app` seperti sekarang).
 
 ---
 
-## TASK 2 — Verifikasi & Fine-Tuning Auto-Scroll "Wishes & Prayers"
+## TASK 2 — Fix Fallback URL Frontend (Supaya Aman di Production)
 
-### 2.0. Fitur Ini Sudah Ada di Kode — Jangan Bikin Ulang
-
-Cek `src/features/wishes/components/wishes.jsx` baris ~260 — list ucapan **sudah** dibungkus komponen `<Marquee>` (`src/components/ui/marquee.jsx`) yang secara otomatis bikin konten geser terus-menerus ke **kiri** pakai animasi CSS (`translateX(0)` → `translateX(-100%)`, didefinisikan di `src/index.css` baris ~57-64).
-
-**Kalau di screenshot/browser kamu keliatannya statis (nggak gerak), kemungkinan penyebabnya salah satu dari 4 hal di bawah** — cek satu-satu, jangan langsung nulis ulang komponennya dari nol.
-
-### 2.1. Kemungkinan 1 — Kartu Ucapan Terlalu Sedikit
-
-`<Marquee repeat={2}>` menduplikasi isi 2x supaya animasinya keliatan menyambung mulus (loop tanpa jeda). Tapi **kalau jumlah ucapan yang di-load cuma 1-2**, total lebar kontennya bisa lebih PENDEK dari lebar layar — akibatnya nggak ada yang perlu di-scroll, browser nggak nampilin gerakan apapun (bukan bug, cuma nggak ada ruang buat bergerak).
-
-**Cara cek**: buka Table Editor Supabase → tabel `wishes` → hitung berapa baris data yang ada untuk `uid` yang kamu buka. Kalau cuma 1-2, itu penyebabnya.
-**Fix**: tambah data ucapan dummy buat testing (submit lewat form di halaman, atau insert manual via SQL), minimal 4-5 ucapan, baru animasinya kelihatan jelas geraknya.
-
-### 2.2. Kemungkinan 2 — Durasi Animasi Terlalu Lambat, Kelihatan Seperti Diam
-
-Di `wishes.jsx`, `Marquee` di-set `className={cn("[--duration:60s] ...")}` — artinya **1 putaran penuh butuh 60 detik**. Kalau kamu cuma lihat sekilas (beberapa detik), pergerakannya emang nyaris nggak kerasa karena lambat banget.
-
-**Fix (opsional, sesuai selera)**: percepat durasinya, misal ganti ke 25-30 detik supaya lebih terasa "bergulir" tapi tetap nyaman dibaca:
-```jsx
-// Cari baris ini di wishes.jsx (sekitar baris 263):
-className={cn("[--duration:60s] [--gap:1rem] py-2")}
-// Ganti jadi:
-className={cn("[--duration:28s] [--gap:1rem] py-2")}
+Saat ini `src/lib/api.js` fallback ke `http://localhost:3000` kalau `VITE_API_URL` tidak di-set:
+```js
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 ```
-> Jangan diset terlalu cepat (di bawah 15 detik) — teks ucapan jadi susah kebaca kalau geraknya kebut-kebutan.
+Ini **berbahaya kalau kelupaan** di production — nanti browser tamu undangan malah nyoba fetch ke `localhost:3000` **milik device mereka sendiri** (pasti gagal). Karena di Vercel, frontend dan backend jalan di **domain yang sama**, kita bisa pakai path relatif (`/api/...`) tanpa perlu nyebut domain sama sekali.
 
-### 2.3. Kemungkinan 3 — `prefers-reduced-motion` Aktif di Sistem/Browser Kamu
+**2.1.** Edit `src/lib/api.js`, baris pertama:
+```js
+// SEBELUM
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-Kalau setting aksesibilitas "reduce motion" aktif di OS/browser kamu (sengaja atau nggak sadar ke-enable), animasi CSS murni seperti marquee ini **tidak otomatis berhenti** (beda dengan animasi `motion/react` di komponen lain yang sudah ada logic `useReducedMotionFlag()`) — jadi ini kemungkinan kecil, tapi kalau sebaliknya (animasinya jalan padahal reduce-motion aktif), itu perlu di-fix juga untuk aksesibilitas.
-
-**Tambahkan ini** ke `src/index.css`, di luar blok `@theme inline` (taruh di bagian bawah file, dekat CSS lain yang bukan theme token):
-```css
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee,
-  .animate-marquee-vertical {
-    animation: none;
-  }
-}
+// SESUDAH
+const API_BASE = import.meta.env.VITE_API_URL || "";
 ```
-Ini memastikan marquee berhenti otomatis untuk user yang butuh reduce-motion, tanpa mempengaruhi user lain.
 
-### 2.4. Kemungkinan 4 — `pauseOnHover` Membuat Kamu Kira Animasinya Mati
+**2.2.** Pastikan `.env` **local** kamu tetap eksplisit set `VITE_API_URL=http://localhost:3000` (sudah begitu dari planning sebelumnya) — supaya development lokal tidak kepengaruh perubahan ini.
 
-`<Marquee pauseOnHover={true}>` artinya **animasi berhenti saat mouse/kursor ada di atas kartu-kartunya**. Kalau kamu lagi nge-screenshot atau nge-inspect elemen (kursor otomatis "nempel" di area itu), animasinya emang sengaja berhenti — ini **fitur, bukan bug**. Coba gerakkan mouse keluar dari area kartu wishes, tunggu beberapa detik, baru animasinya lanjut jalan lagi.
-
-### 2.5. Test Akhir
-
-1. Pastikan ada minimal 4-5 data ucapan (Task 2.1).
-2. Refresh browser, scroll ke section Wishes & Prayers.
-3. **Jangan taruh kursor di atas kartu-kartunya** (supaya tidak ke-pause).
-4. Amati minimal 10-15 detik — kartu-kartu harus terlihat geser pelan ke kiri secara terus-menerus, lalu loop lagi dari awal tanpa "patah"/lompat.
+**2.3.** Di Vercel nanti, **jangan set** `VITE_API_URL` sama sekali (biarkan kosong/tidak ada) — otomatis fallback ke `""`, hasilnya request jadi path relatif (`/api/invitation/xxx`), langsung ke domain yang sama, **tanpa perlu konfigurasi CORS apapun** (karena same-origin).
 
 **Acceptance criteria Task 2:**
-- Dengan ≥4 data ucapan dan kursor tidak menyentuh area kartu, kartu-kartu wishes terlihat bergeser otomatis ke kiri, loop mulus tanpa jeda/lompatan.
-- Hover mouse di atas kartu manapun → animasi pause; mouse keluar area → animasi lanjut lagi.
-- Kalau `prefers-reduced-motion` diaktifkan di OS, animasi berhenti total (statis).
+- `bun run dev` di local tetap jalan normal seperti biasa (karena `.env` lokal masih eksplisit).
+- Kode `api.js` sudah tidak ada lagi hardcode `localhost:3000` sebagai fallback.
+
+---
+
+## TASK 3 — Buat `vercel.json`
+
+File ini ngasih tau Vercel cara build project + gimana handle routing SPA (supaya buka `namadomain.vercel.app/test-wedding` langsung tanpa 404, bukan cuma `namadomain.vercel.app/`).
+
+**3.1.** Buat file `vercel.json` di root project:
+```json
+{
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+**Penjelasan `rewrites`:** aturan ini bilang "path apapun yang **BUKAN** diawali `/api/` → arahkan ke `index.html`". Ini penting karena aplikasi ini baca `uid` undangan dari path URL secara manual di sisi client (`invitation-context.jsx`) — jadi semua path selain `/api/*` harus tetap memuat aplikasi React yang sama, baru nanti React-nya yang parse `uid`-nya.
+
+**Acceptance criteria Task 3:**
+- File `vercel.json` ada di root, isinya sesuai di atas.
+
+---
+
+## TASK 4 — Commit & Push ke GitHub
+
+```bash
+git add api/ src/lib/api.js vercel.json
+git commit -m "feat(deploy): add Vercel serverless function entry + SPA rewrite config"
+git push origin main
+```
+
+> Vercel deploy berdasarkan repo Git (GitHub/GitLab/Bitbucket) — pastikan semua perubahan di atas sudah ke-push duluan sebelum lanjut ke Task 5.
+
+---
+
+## TASK 5 — Import Project ke Vercel
+
+**5.1.** Buka `https://vercel.com`, login/daftar (bisa langsung pakai akun GitHub).
+
+**5.2.** Klik **Add New** → **Project**.
+
+**5.3.** Pilih **Import** repo `arif5995/weeding-arif-munah` dari daftar (kalau belum muncul, klik **Adjust GitHub App Permissions** dulu, kasih akses ke repo ini).
+
+**5.4.** Di halaman konfigurasi sebelum deploy:
+- **Framework Preset**: biasanya otomatis kedeteksi **Vite** — biarkan (kalaupun salah deteksi, Build/Install Command dari `vercel.json` yang menang).
+- **Root Directory**: biarkan default (`.`), kecuali project kamu ada di subfolder repo.
+
+**5.5.** Buka bagian **Environment Variables**, tambahkan:
+
+| Key | Value | Catatan |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://postgres.dqypfsartczbkywjhbso:asW892b2llAVLx14@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require` | Persis yang di `.env` local kamu — connection string Supabase (Transaction Pooler) |
+| `VITE_INVITATION_UID` | `test-wedding` (opsional) | Kalau mau domain utama (`namadomain.vercel.app/`) langsung nampilin undangan spesifik ini tanpa perlu path |
+
+> **JANGAN** tambahkan `VITE_API_URL` di sini — biarkan kosong sesuai Task 2.
+> **JANGAN** tambahkan `PORT` — itu cuma relevan buat `bun run server` di local, Vercel serverless function tidak butuh itu.
+
+**5.6.** Klik **Deploy**.
+
+**Acceptance criteria Task 5:**
+- Build sukses (bar hijau "Ready"), tidak ada error merah di build log.
+
+---
+
+## TASK 6 — Verifikasi Setelah Deploy
+
+**6.1.** Buka domain yang Vercel kasih (biasanya `nama-project-xxxx.vercel.app`).
+
+**6.2.** Test endpoint API langsung dulu di browser/curl:
+```
+https://nama-project-xxxx.vercel.app/api/invitation/test-wedding
+```
+Harus keluar JSON `{"success": true, "data": {...}}` — **bukan** 404 atau 500.
+
+**6.3.** Buka domain tanpa path (`/`) — kalau kamu set `VITE_INVITATION_UID` di Task 5.5, harus langsung tampil undangan. Kalau tidak, buka `/test-wedding` secara eksplisit.
+
+**6.4.** Test fitur yang butuh nulis data — submit form ucapan/wishes lewat UI, pastikan berhasil masuk (cek lagi via `psql` atau Supabase Table Editor kalau perlu).
+
+**6.5.** Buka DevTools → Network tab, pastikan **tidak ada error CORS** (harusnya nggak ada sama sekali, karena sekarang same-origin — beda dari waktu development local yang butuh CORS karena port beda).
+
+**Acceptance criteria Task 6:**
+- Semua endpoint & fitur (baca + tulis data) jalan normal di domain Vercel, tanpa error CORS/404/500.
+
+---
+
+## TASK 7 — (Opsional) Custom Domain
+
+Kalau nanti punya domain sendiri (misal dari Hostinger/Niagahoster/dll):
+1. Di dashboard project Vercel → **Settings** → **Domains** → **Add**.
+2. Masukkan domain kamu, Vercel kasih instruksi DNS record (biasanya `CNAME` atau `A` record) yang perlu ditambahin di pengaturan DNS domain kamu.
+3. Tunggu propagasi DNS (bisa beberapa menit sampai beberapa jam).
+
+---
+
+## Troubleshooting
+
+| Gejala | Kemungkinan Penyebab | Fix |
+|---|---|---|
+| Build gagal, log nyebut `bun: command not found` | Vercel belum di-set pakai Bun | Di Project Settings → General → cek "Install Command"/"Build Command" eksplisit terisi `bun install`/`bun run build` sesuai `vercel.json`; kalau masih gagal, ganti sementara ke `npm install`/`npm run build` di `vercel.json` |
+| `/api/invitation/test-wedding` return 404 | File `api/[[...route]].js` salah nama/lokasi | Pastikan persis di `api/[[...route]].js` (bukan `src/api/...` atau nama file beda) |
+| `/api/...` return 500, pesan `No database connection available` | `DATABASE_URL` belum ke-set di Environment Variables Vercel, atau salah | Cek ulang Task 5.5, pastikan value-nya persis sama dengan yang jalan di local |
+| Buka `/test-wedding` malah 404 halaman putih dari Vercel (bukan dari React) | `vercel.json` rewrites belum ke-apply / belum ke-push sebelum deploy | Pastikan `vercel.json` ada di root repo yang di-deploy, redeploy setelah push |
+| Data lama (sebelum update) masih muncul | Cache browser / cache Vercel Edge | Hard refresh (`Ctrl+Shift+R`), atau redeploy manual dari dashboard Vercel |
 
 ---
 
 ## Ringkasan Urutan Kerja
 
 ```
-TASK 1 (Location & Map):
-1. Siapkan maps_url + maps_embed dari koordinat yang sudah di-resolve
-2. Update via SQL (Supabase) ATAU src/config/config.js (fallback statis)
-3. Ganti juga "location" (nama venue) & "address" — JANGAN pakai nama pin asli
-4. Verifikasi: peta embed & tombol "View Map" mengarah ke titik yang sama
-
-TASK 2 (Auto-scroll Wishes):
-1. Cek jumlah data wishes — tambah dummy data kalau cuma 1-2
-2. (Opsional) percepat --duration dari 60s ke ~28s biar lebih terasa
-3. Tambahkan CSS prefers-reduced-motion fallback untuk aksesibilitas
-4. Test ulang: amati 10-15 detik tanpa hover mouse di kartu
+1. Buat api/[[...route]].js (jembatan Hono app → Vercel Serverless Function)   (Task 1)
+2. Fix fallback API_BASE di src/lib/api.js dari localhost → string kosong      (Task 2)
+3. Buat vercel.json (build config + SPA rewrite)                               (Task 3)
+4. git commit + push ke GitHub                                                 (Task 4)
+5. Import project di dashboard Vercel, set DATABASE_URL, Deploy                (Task 5)
+6. Verifikasi: test API endpoint, test baca+tulis data, cek no CORS error      (Task 6)
+7. (Opsional) Pasang custom domain                                             (Task 7)
 ```
 
 ## Catatan untuk Eksekutor
 
-- **Jangan tulis ulang komponen Marquee atau logic auto-scroll dari nol** — itu sudah ada dan sudah benar arahnya (ke kiri). Task di sini murni debugging kenapa belum "kerasa", bukan pengembangan fitur baru.
-- Kalau setelah semua langkah Task 2 tetap tidak ada pergerakan sama sekali (bukan cuma "kurang berasa"), kemungkinan ada masalah lain di luar dugaan planning ini (misal CSS ke-override komponen lain, atau versi Tailwind config berbeda dari yang diasumsikan) — screenshot hasil inspect element (`animate-marquee` class + computed style `animation`) dan laporkan untuk didiagnosis lebih lanjut.
-- Untuk Task 1, koordinat yang saya kasih (`-7.5917916, 112.7671249`) diambil dari resolve otomatis link short URL kamu — **cross-check sendiri sekali lagi** di Google Maps (paste koordinat itu ke search box Maps) untuk mastiin itu benar-benar titik venue pernikahan yang dimaksud, bukan cuma percaya ke hasil resolve otomatis.
+- **Jangan hapus/ubah `wrangler.jsonc.example`** — biarkan tetap ada di repo, siapa tau nanti mau coba deploy ke Cloudflare Workers juga sebagai alternatif; ini tidak mengganggu deploy Vercel sama sekali (Vercel cuma baca `vercel.json`, mengabaikan file `wrangler.jsonc.example`).
+- Koneksi database yang dipakai sekarang (**Transaction Pooler**, port `6543`) itu **sudah pas** buat lingkungan serverless seperti Vercel Functions — jangan ganti balik ke Direct Connection, karena serverless function bisa spin-up banyak instance sekaligus saat traffic ramai, dan Direct Connection nggak dirancang buat pola koneksi seperti itu.
+- Setiap kali push commit baru ke branch `main`, Vercel **otomatis re-deploy** — tidak perlu ulang Task 5 dari awal untuk update berikutnya.
