@@ -40,6 +40,13 @@ docker compose up -d    # or Docker
 | `bun run generate-links` | Generate guest links |
 | `bun run lint` | ESLint validation |
 
+## Catatan Koneksi Supabase
+
+- Region project: ap-northeast-1 (Tokyo)
+- Gunakan Transaction Pooler (port 6543), BUKAN Direct Connection (port 5432)
+  — Direct connection sering gagal karena hostname-nya IPv6-only.
+- Ambil connection string dari: Dashboard → Connect → URI → tab "Transaction pooler"
+
 ## Docs
 
 [Getting Started](https://github.com/sakeenah-wedding/template/wiki/Getting-Started) · [Deployment](https://github.com/sakeenah-wedding/template/wiki/Deployment) · [API](https://github.com/sakeenah-wedding/template/wiki/API-Reference) · [Architecture](https://github.com/sakeenah-wedding/template/wiki/Architecture) · [Structure](https://github.com/sakeenah-wedding/template/wiki/Project-Structure) · [Security](https://github.com/sakeenah-wedding/template/wiki/Security) · [Testing](https://github.com/sakeenah-wedding/template/wiki/Testing) · [Links](https://github.com/sakeenah-wedding/template/wiki/Personalized-Links)
