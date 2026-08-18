@@ -63,7 +63,10 @@ export async function createWish(uid, wishData) {
  */
 export async function checkWishSubmitted(uid, name) {
   const baseUrl = getBaseUrl();
-  const url = new URL(`/api/${uid}/wishes/check/${encodeURIComponent(name)}`, baseUrl);
+  const url = new URL(
+    `/api/${uid}/wishes/check/${encodeURIComponent(name)}`,
+    baseUrl,
+  );
   const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
