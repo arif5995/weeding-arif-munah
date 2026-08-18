@@ -90,7 +90,7 @@ function App() {
           <h1 className={cn("text-2xlfont-fahkwang  text-gray-800 mb-2")}>
             Invitation Not Found
           </h1>
-          <p className={cn("text-gray-600 mb-4")}>{error}</p>
+          <p className={cn("text-gray-600 mb-4")}>{error.message}</p>
           <p className={cn("text-sm text-gray-500")}>
             Please check your URL or contact the organizer.
           </p>

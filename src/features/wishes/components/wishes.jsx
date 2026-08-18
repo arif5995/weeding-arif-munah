@@ -242,7 +242,7 @@ export default function Wishes() {
 
             {error && !isLoading && (
               <div className={cn("text-center py-8")}>
-                <p className={cn("text-rose-600")}>{error}</p>
+                <p className={cn("text-rose-600")}>{error.message}</p>
               </div>
             )}
 
