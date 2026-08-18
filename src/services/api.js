@@ -1,5 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || "";
 
+const getBaseUrl = () => {
+  if (API_URL) return API_URL;
+  if (typeof window !== "undefined") return window.location.origin;
+  return "";
+};
+
 /**
  * Fetch all wishes for an invitation
  * @param {string} uid - Invitation UID
@@ -8,7 +14,8 @@ const API_URL = import.meta.env.VITE_API_URL || "";
  */
 export async function fetchWishes(uid, options = {}) {
   const { limit = 50, offset = 0 } = options;
-  const url = new URL(`${API_URL}/api/${uid}/wishes`);
+  const baseUrl = getBaseUrl();
+  const url = new URL(`/api/${uid}/wishes`, baseUrl);
   url.searchParams.set("limit", limit);
   url.searchParams.set("offset", offset);
 
@@ -27,7 +34,9 @@ export async function fetchWishes(uid, options = {}) {
  * @returns {Promise<object>} Response with created wish
  */
 export async function createWish(uid, wishData) {
-  const response = await fetch(`${API_URL}/api/${uid}/wishes`, {
+  const baseUrl = getBaseUrl();
+  const url = new URL(`/api/${uid}/wishes`, baseUrl);
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -53,9 +62,9 @@ export async function createWish(uid, wishData) {
  * @returns {Promise<object>} Response with hasSubmitted boolean
  */
 export async function checkWishSubmitted(uid, name) {
-  const response = await fetch(
-    `${API_URL}/api/${uid}/wishes/check/${encodeURIComponent(name)}`,
-  );
+  const baseUrl = getBaseUrl();
+  const url = new URL(`/api/${uid}/wishes/check/${encodeURIComponent(name)}`, baseUrl);
+  const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || "Failed to check wish status");
@@ -70,7 +79,9 @@ export async function checkWishSubmitted(uid, name) {
  * @returns {Promise<object>} Response with deletion confirmation
  */
 export async function deleteWish(uid, wishId) {
-  const response = await fetch(`${API_URL}/api/${uid}/wishes/${wishId}`, {
+  const baseUrl = getBaseUrl();
+  const url = new URL(`/api/${uid}/wishes/${wishId}`, baseUrl);
+  const response = await fetch(url, {
     method: "DELETE",
   });
 
@@ -87,7 +98,9 @@ export async function deleteWish(uid, wishId) {
  * @returns {Promise<object>} Response with stats data
  */
 export async function fetchAttendanceStats(uid) {
-  const response = await fetch(`${API_URL}/api/${uid}/stats`);
+  const baseUrl = getBaseUrl();
+  const url = new URL(`/api/${uid}/stats`, baseUrl);
+  const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || "Failed to fetch stats");
@@ -101,7 +114,9 @@ export async function fetchAttendanceStats(uid) {
  * @returns {Promise<object>} Response with invitation data
  */
 export async function fetchInvitation(uid) {
-  const response = await fetch(`${API_URL}/api/invitation/${uid}`);
+  const baseUrl = getBaseUrl();
+  const url = new URL(`/api/invitation/${uid}`, baseUrl);
+  const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || "Failed to fetch invitation");
