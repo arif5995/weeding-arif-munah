@@ -8,32 +8,23 @@
  */
 
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { zValidator } from "@hono/zod-validator";
 
-// Feature routes and schemas
-import { invitationRoutes, wishesRoutes } from "./features/index.js";
-import { uidParamSchema } from "./features/invitation/invitation.schema.js";
-import { getDbClient } from "./lib/db-client.js";
-import { AppError } from "./lib/errors.js";
+// Feature routes
+import { wishesRoutes } from "./routes/wishes.js";
+import { weddingRoutes } from "./routes/wedding.js";
+import { getDbClient } from "./db/client.js";
 
-// Create main app and API sub-app
+// Create single Hono app
 const app = new Hono();
-const api = new Hono();
 
 // ============ Middleware ============
 
 app.use("*", logger());
-app.use(
-  "*",
-  cors({
-    origin: "*",
-    allowMethods: ["GET", "POST", "PUT", "DELETE"],
-  }),
-);
 
 // ============ Global Error Handler ============
+
+import { AppError } from "./lib/errors.js";
 
 app.onError((err, c) => {
   console.error(`[Error] ${err.name}: ${err.message}`);
@@ -42,8 +33,10 @@ app.onError((err, c) => {
     return c.json(
       {
         success: false,
-        error: err.message,
-        code: err.code,
+        error: {
+          code: err.code,
+          message: err.message,
+        },
       },
       err.status,
     );
@@ -54,8 +47,11 @@ app.onError((err, c) => {
     return c.json(
       {
         success: false,
-        error: "Validation failed",
-        details: err.errors,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Validation failed",
+          details: err.errors,
+        },
       },
       400,
     );
@@ -64,47 +60,69 @@ app.onError((err, c) => {
   return c.json(
     {
       success: false,
-      error: "Internal server error",
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Internal server error",
+      },
     },
     500,
   );
 });
 
-// ============ Mount Feature Routes ============
+// ============ Not Found Handler ============
 
-// Invitation routes: /api/invitation/:uid
-api.route("/invitation", invitationRoutes);
+app.notFound((c) => {
+  return c.json(
+    {
+      success: false,
+      error: {
+        code: "NOT_FOUND",
+        message: "Route not found",
+      },
+    },
+    404,
+  );
+});
 
-// Wishes routes: /api/:uid/wishes/*
-api.route("/:uid/wishes", wishesRoutes);
+// ============ Health Check Endpoints ============
 
-// Stats route (related to wishes but at /:uid level)
-api.get("/:uid/stats", zValidator("param", uidParamSchema), async (c) => {
-  const { uid } = c.req.valid("param");
+app.get("/api/health", (c) => {
+  return c.json({
+    success: true,
+    service: "wedding-api",
+  });
+});
 
+app.get("/api/health/db", async (c) => {
   try {
-    const pool = await getDbClient(c);
-    const result = await pool.query(
-      `SELECT
-          COUNT(*) FILTER (WHERE attendance = 'ATTENDING') as attending,
-          COUNT(*) FILTER (WHERE attendance = 'NOT_ATTENDING') as not_attending,
-          COUNT(*) FILTER (WHERE attendance = 'MAYBE') as maybe,
-          COUNT(*) as total
-       FROM wishes
-       WHERE invitation_uid = $1`,
-      [uid],
-    );
-
-    return c.json({ success: true, data: result.rows[0] });
+    const pool = await getDbClient();
+    await pool.query("SELECT 1");
+    return c.json({
+      success: true,
+      database: "connected",
+    });
   } catch (error) {
-    console.error("Error fetching stats:", error);
-    throw new Error("Internal server error");
+    console.error("Database health check failed:", error);
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: "DATABASE_ERROR",
+          message: "Database connection failed",
+        },
+      },
+      503,
+    );
   }
 });
 
-// ============ Mount API Routes ============
+// ============ Mount Feature Routes ============
 
-app.route("/api", api);
+// Wishes routes: /api/test-wedding/wishes
+app.route("/api/test-wedding", wishesRoutes);
+
+// Wedding routes: /api/wedding
+app.route("/api/wedding", weddingRoutes);
 
 // ============ Export ============
 
