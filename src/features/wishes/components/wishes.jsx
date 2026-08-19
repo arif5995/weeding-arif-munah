@@ -338,14 +338,14 @@ export default function Wishes() {
                           {/* New badge */}
                           {Date.now() - new Date(wish.created_at).getTime() <
                             3600000 && (
-                              <span
-                                className={cn(
-                                  "flex-shrink-0 px-2 py-0.5 rounded-full bg-brand-accent-soft text-brand-primary text-xs font-medium",
-                                )}
-                              >
-                                New
-                              </span>
-                            )}
+                            <span
+                              className={cn(
+                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-brand-accent-soft text-brand-primary text-xs font-medium",
+                              )}
+                            >
+                              New
+                            </span>
+                          )}
                         </div>
 
                         {/* Message */}
@@ -661,7 +661,7 @@ export default function Wishes() {
                         >
                           {attendance
                             ? options.find((opt) => opt.value === attendance)
-                              ?.label
+                                ?.label
                             : t("wishes.attendancePlaceholder")}
                         </span>
                         <ChevronDown

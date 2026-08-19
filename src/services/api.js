@@ -11,16 +11,12 @@ export async function fetchWishes(options = {}) {
     offset: String(offset),
   });
 
-  const response = await fetch(
-    `/api/test-wedding/wishes?${params.toString()}`
-  );
+  const response = await fetch(`/api/test-wedding/wishes?${params.toString()}`);
 
   if (!response.ok) {
     const error = await response.json();
 
-    throw new Error(
-      error.error?.message || "Failed to fetch wishes"
-    );
+    throw new Error(error.error?.message || "Failed to fetch wishes");
   }
 
   return response.json();
@@ -58,7 +54,7 @@ export async function createWish(wishData) {
  */
 export async function checkWishSubmitted(name) {
   const response = await fetch(
-    `/api/test-wedding/wishes/check/${encodeURIComponent(name)}`
+    `/api/test-wedding/wishes/check/${encodeURIComponent(name)}`,
   );
   if (!response.ok) {
     const error = await response.json();
