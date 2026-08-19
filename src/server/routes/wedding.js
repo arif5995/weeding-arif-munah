@@ -18,14 +18,10 @@ const uidParamSchema = z.object({
  * GET /api/wedding/:uid
  * Get invitation by UID with all related data (agenda, banks)
  */
-weddingRoutes.get(
-  "/:uid",
-  zValidator("param", uidParamSchema),
-  async (c) => {
-    const { uid } = c.req.valid("param");
-    const result = await getInvitation(uid);
-    return c.json(result);
-  },
-);
+weddingRoutes.get("/:uid", zValidator("param", uidParamSchema), async (c) => {
+  const { uid } = c.req.valid("param");
+  const result = await getInvitation(uid);
+  return c.json(result);
+});
 
 export { weddingRoutes };

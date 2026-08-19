@@ -1,9 +1,3 @@
-const API_URL = ""; // Use relative URLs for same-origin API calls
-
-const getBaseUrl = () => {
-  return API_URL;
-};
-
 /**
  * Fetch all wishes for an invitation
  * @param {object} options - Query options (limit, offset)
@@ -11,16 +5,24 @@ const getBaseUrl = () => {
  */
 export async function fetchWishes(options = {}) {
   const { limit = 50, offset = 0 } = options;
-  const baseUrl = getBaseUrl();
-  const url = new URL(`/api/test-wedding/wishes`, baseUrl);
-  url.searchParams.set("limit", limit);
-  url.searchParams.set("offset", offset);
 
-  const response = await fetch(url);
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+
+  const response = await fetch(
+    `/api/test-wedding/wishes?${params.toString()}`
+  );
+
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || "Failed to fetch wishes");
+
+    throw new Error(
+      error.error?.message || "Failed to fetch wishes"
+    );
   }
+
   return response.json();
 }
 
@@ -30,9 +32,7 @@ export async function fetchWishes(options = {}) {
  * @returns {Promise<object>} Response with created wish
  */
 export async function createWish(wishData) {
-  const baseUrl = getBaseUrl();
-  const url = new URL(`/api/test-wedding/wishes`, baseUrl);
-  const response = await fetch(url, {
+  const response = await fetch("/api/test-wedding/wishes", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -57,12 +57,9 @@ export async function createWish(wishData) {
  * @returns {Promise<object>} Response with hasSubmitted boolean
  */
 export async function checkWishSubmitted(name) {
-  const baseUrl = getBaseUrl();
-  const url = new URL(
-    `/api/test-wedding/wishes/check/${encodeURIComponent(name)}`,
-    baseUrl,
+  const response = await fetch(
+    `/api/test-wedding/wishes/check/${encodeURIComponent(name)}`
   );
-  const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error?.message || "Failed to check wish status");
@@ -76,9 +73,7 @@ export async function checkWishSubmitted(name) {
  * @returns {Promise<object>} Response with deletion confirmation
  */
 export async function deleteWish(wishId) {
-  const baseUrl = getBaseUrl();
-  const url = new URL(`/api/test-wedding/wishes/${wishId}`, baseUrl);
-  const response = await fetch(url, {
+  const response = await fetch(`/api/test-wedding/wishes/${wishId}`, {
     method: "DELETE",
   });
 
@@ -94,9 +89,7 @@ export async function deleteWish(wishId) {
  * @returns {Promise<object>} Response with stats data
  */
 export async function fetchAttendanceStats() {
-  const baseUrl = getBaseUrl();
-  const url = new URL(`/api/test-wedding/wishes/stats`, baseUrl);
-  const response = await fetch(url);
+  const response = await fetch("/api/test-wedding/wishes/stats");
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error?.message || "Failed to fetch stats");
@@ -110,9 +103,7 @@ export async function fetchAttendanceStats() {
  * @returns {Promise<object>} Response with invitation data
  */
 export async function fetchInvitation(uid) {
-  const baseUrl = getBaseUrl();
-  const url = new URL(`/api/wedding/${uid}`, baseUrl);
-  const response = await fetch(url);
+  const response = await fetch(`/api/wedding/${uid}`);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error?.message || "Failed to fetch invitation");

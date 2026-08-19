@@ -106,9 +106,15 @@ vi.mock("../src/server/db/client.js", () => {
 
       // Stats query
       if (sql.includes("FILTER")) {
-        const attending = insertedWishes.filter((w) => w.attendance === "ATTENDING").length;
-        const notAttending = insertedWishes.filter((w) => w.attendance === "NOT_ATTENDING").length;
-        const maybe = insertedWishes.filter((w) => w.attendance === "MAYBE").length;
+        const attending = insertedWishes.filter(
+          (w) => w.attendance === "ATTENDING",
+        ).length;
+        const notAttending = insertedWishes.filter(
+          (w) => w.attendance === "NOT_ATTENDING",
+        ).length;
+        const maybe = insertedWishes.filter(
+          (w) => w.attendance === "MAYBE",
+        ).length;
         return {
           rows: [
             {
@@ -122,10 +128,7 @@ vi.mock("../src/server/db/client.js", () => {
       }
 
       // Check existing wish (by name)
-      if (
-        sql.includes("SELECT id FROM wishes WHERE") &&
-        sql.includes("name")
-      ) {
+      if (sql.includes("SELECT id FROM wishes WHERE") && sql.includes("name")) {
         const name = params[0];
         const existing = insertedWishes.find((w) => w.name === name);
         if (existing) {

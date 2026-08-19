@@ -5,7 +5,13 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { getWishes, createWish, deleteWish, checkWish, getWishStats } from "../services/wishes.service.js";
+import {
+  getWishes,
+  createWish,
+  deleteWish,
+  checkWish,
+  getWishStats,
+} from "../services/wishes.service.js";
 
 const wishesRoutes = new Hono();
 
