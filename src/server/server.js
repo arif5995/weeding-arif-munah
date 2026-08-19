@@ -5,6 +5,6 @@ const port = process.env.PORT || 3000;
 console.log(`🚀 Server is running on http://localhost:${port}`);
 
 serve({
-  fetch: (request) => app.fetch(request, process.env),
+  fetch: app.fetch,
   port,
 });

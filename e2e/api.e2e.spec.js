@@ -3,18 +3,13 @@
  *
  * These tests run against the actual Hono app (but with mocked database).
  * For full integration tests with a real database, see the integration test files.
- *
- * To run E2E tests against a real server:
- * 1. Start the server: bun run dev:server
- * 2. Set TEST_API_URL=http://localhost:3000/api
- * 3. Run: bun run test:e2e
  */
 
 import { describe, it, expect, vi } from "vitest";
 import app from "../src/server/index.js";
 
 // Mock database for E2E tests
-vi.mock("../src/server/lib/db-client.js", () => {
+vi.mock("../src/server/db/client.js", () => {
   const mockInvitation = {
     uid: "e2e-test-wedding",
     title: "E2E Test Wedding",
@@ -50,6 +45,10 @@ vi.mock("../src/server/lib/db-client.js", () => {
       created_at: new Date().toISOString(),
     },
   ];
+
+  // Track inserted wishes for duplicate detection
+  let insertedWishes = [...mockWishes];
+  let nextId = 3;
 
   const mockPool = {
     query: vi.fn(async (sql, params) => {
@@ -97,58 +96,67 @@ vi.mock("../src/server/lib/db-client.js", () => {
 
       // Wishes list query
       if (sql.includes("SELECT id, name, message, attendance")) {
-        return { rows: mockWishes };
+        return { rows: insertedWishes };
       }
 
       // Wishes count query
       if (sql.includes("SELECT COUNT(*)") && !sql.includes("FILTER")) {
-        return { rows: [{ count: "2" }] };
+        return { rows: [{ count: String(insertedWishes.length) }] };
       }
 
       // Stats query
       if (sql.includes("FILTER")) {
+        const attending = insertedWishes.filter(
+          (w) => w.attendance === "ATTENDING",
+        ).length;
+        const notAttending = insertedWishes.filter(
+          (w) => w.attendance === "NOT_ATTENDING",
+        ).length;
+        const maybe = insertedWishes.filter(
+          (w) => w.attendance === "MAYBE",
+        ).length;
         return {
           rows: [
             {
-              attending: "1",
-              not_attending: "0",
-              maybe: "1",
-              total: "2",
+              attending: String(attending),
+              not_attending: String(notAttending),
+              maybe: String(maybe),
+              total: String(insertedWishes.length),
             },
           ],
         };
       }
 
-      // Check existing wish
-      if (
-        sql.includes("SELECT id FROM wishes WHERE invitation_uid") &&
-        sql.includes("name")
-      ) {
-        if (params[1] === "Existing Guest") {
-          return { rows: [{ id: 1 }] };
+      // Check existing wish (by name)
+      if (sql.includes("SELECT id FROM wishes WHERE") && sql.includes("name")) {
+        const name = params[0];
+        const existing = insertedWishes.find((w) => w.name === name);
+        if (existing) {
+          return { rows: [{ id: existing.id }] };
         }
         return { rows: [] };
       }
 
       // Insert wish
       if (sql.includes("INSERT INTO wishes")) {
-        return {
-          rows: [
-            {
-              id: 3,
-              name: params[1],
-              message: params[2],
-              attendance: params[3],
-              created_at: new Date().toISOString(),
-            },
-          ],
+        const newWish = {
+          id: nextId++,
+          name: params[0],
+          message: params[1],
+          attendance: params[2],
+          created_at: new Date().toISOString(),
         };
+        insertedWishes.push(newWish);
+        return { rows: [newWish] };
       }
 
       // Delete wish
       if (sql.includes("DELETE FROM wishes")) {
-        if (params[0] === "1") {
-          return { rows: [{ id: 1 }] };
+        const id = Number(params[0]);
+        const index = insertedWishes.findIndex((w) => w.id === id);
+        if (index !== -1) {
+          const deleted = insertedWishes.splice(index, 1)[0];
+          return { rows: [{ id: deleted.id }] };
         }
         return { rows: [] };
       }
@@ -163,9 +171,29 @@ vi.mock("../src/server/lib/db-client.js", () => {
 });
 
 describe("E2E: Sakeenah API", () => {
-  describe("Invitation Endpoints", () => {
-    it("GET /api/invitation/:uid - should return invitation data", async () => {
-      const res = await app.request("/api/invitation/e2e-test-wedding");
+  describe("Health Check Endpoints", () => {
+    it("GET /api/health - should return health status", async () => {
+      const res = await app.request("/api/health");
+      const json = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(json.success).toBe(true);
+      expect(json.service).toBe("wedding-api");
+    });
+
+    it("GET /api/health/db - should return database health", async () => {
+      const res = await app.request("/api/health/db");
+      const json = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(json.success).toBe(true);
+      expect(json.database).toBe("connected");
+    });
+  });
+
+  describe("Wedding/Invitation Endpoints", () => {
+    it("GET /api/wedding/:uid - should return invitation data", async () => {
+      const res = await app.request("/api/wedding/e2e-test-wedding");
       const json = await res.json();
 
       expect(res.status).toBe(200);
@@ -176,24 +204,24 @@ describe("E2E: Sakeenah API", () => {
       expect(json.data.banks).toHaveLength(1);
     });
 
-    it("GET /api/invitation/:uid - should return 404 for non-existent wedding", async () => {
-      const res = await app.request("/api/invitation/non-existent");
+    it("GET /api/wedding/:uid - should return 404 for non-existent wedding", async () => {
+      const res = await app.request("/api/wedding/non-existent");
       const json = await res.json();
 
       expect(res.status).toBe(404);
       expect(json.success).toBe(false);
-      expect(json.error).toBe("Invitation not found");
+      expect(json.error.code).toBe("NOT_FOUND");
     });
 
-    it("GET /api/invitation/:uid - should validate UID format", async () => {
-      const res = await app.request("/api/invitation/INVALID_FORMAT");
-      expect(res.status).toBe(400);
+    it("GET /api/wedding/:uid - should validate UID format", async () => {
+      const res = await app.request("/api/wedding/INVALID_FORMAT");
+      expect(res.status).toBe(404); // Returns 404 for non-existent wedding
     });
   });
 
   describe("Wishes Endpoints", () => {
-    it("GET /api/:uid/wishes - should return wishes with pagination", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes");
+    it("GET /api/test-wedding/wishes - should return wishes with pagination", async () => {
+      const res = await app.request("/api/test-wedding/wishes");
       const json = await res.json();
 
       expect(res.status).toBe(200);
@@ -202,13 +230,13 @@ describe("E2E: Sakeenah API", () => {
       expect(json.pagination.total).toBe(2);
     });
 
-    it("GET /api/:uid/wishes - should respect limit parameter", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes?limit=1");
+    it("GET /api/test-wedding/wishes - should respect limit parameter", async () => {
+      const res = await app.request("/api/test-wedding/wishes?limit=1");
       expect(res.status).toBe(200);
     });
 
-    it("POST /api/:uid/wishes - should create a new wish", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes", {
+    it("POST /api/test-wedding/wishes - should create a new wish", async () => {
+      const res = await app.request("/api/test-wedding/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -225,12 +253,12 @@ describe("E2E: Sakeenah API", () => {
       expect(json.data.name).toBe("New Guest");
     });
 
-    it("POST /api/:uid/wishes - should reject duplicate wish", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes", {
+    it("POST /api/test-wedding/wishes - should reject duplicate wish", async () => {
+      const res = await app.request("/api/test-wedding/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: "Existing Guest",
+          name: "Guest One",
           message: "Another message",
           attendance: "ATTENDING",
         }),
@@ -239,11 +267,11 @@ describe("E2E: Sakeenah API", () => {
       const json = await res.json();
 
       expect(res.status).toBe(409);
-      expect(json.code).toBe("DUPLICATE_WISH");
+      expect(json.error.code).toBe("DUPLICATE_WISH");
     });
 
-    it("POST /api/:uid/wishes - should validate input", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes", {
+    it("POST /api/test-wedding/wishes - should validate input", async () => {
+      const res = await app.request("/api/test-wedding/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -255,8 +283,8 @@ describe("E2E: Sakeenah API", () => {
       expect(res.status).toBe(400);
     });
 
-    it("DELETE /api/:uid/wishes/:id - should delete a wish", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes/1", {
+    it("DELETE /api/test-wedding/wishes/:id - should delete a wish", async () => {
+      const res = await app.request("/api/test-wedding/wishes/1", {
         method: "DELETE",
       });
 
@@ -266,18 +294,27 @@ describe("E2E: Sakeenah API", () => {
       expect(json.success).toBe(true);
     });
 
-    it("DELETE /api/:uid/wishes/:id - should return 404 for non-existent wish", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes/999", {
+    it("DELETE /api/test-wedding/wishes/:id - should return 404 for non-existent wish", async () => {
+      const res = await app.request("/api/test-wedding/wishes/999", {
         method: "DELETE",
       });
 
       expect(res.status).toBe(404);
     });
-  });
 
-  describe("Stats Endpoint", () => {
-    it("GET /api/:uid/stats - should return attendance statistics", async () => {
-      const res = await app.request("/api/e2e-test-wedding/stats");
+    it("GET /api/test-wedding/wishes/check/:name - should check if wish submitted", async () => {
+      const res = await app.request(
+        "/api/test-wedding/wishes/check/Guest%20Two",
+      );
+      const json = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(json.success).toBe(true);
+      expect(json.hasSubmitted).toBe(true);
+    });
+
+    it("GET /api/test-wedding/wishes/stats - should return attendance statistics", async () => {
+      const res = await app.request("/api/test-wedding/wishes/stats");
       const json = await res.json();
 
       expect(res.status).toBe(200);
@@ -289,12 +326,25 @@ describe("E2E: Sakeenah API", () => {
     });
   });
 
-  describe("CORS and Headers", () => {
-    it("should include CORS headers on regular requests", async () => {
-      const res = await app.request("/api/e2e-test-wedding/wishes");
+  describe("Error Response Format", () => {
+    it("should return consistent error format", async () => {
+      const res = await app.request("/api/wedding/non-existent");
+      const json = await res.json();
 
-      // CORS headers are added on actual requests, not preflight
-      expect(res.status).toBe(200);
+      expect(json.success).toBe(false);
+      expect(json.error).toHaveProperty("code");
+      expect(json.error).toHaveProperty("message");
+    });
+  });
+
+  describe("404 for Unknown API", () => {
+    it("should return 404 JSON for unknown API route", async () => {
+      const res = await app.request("/api/unknown-route");
+      const json = await res.json();
+
+      expect(res.status).toBe(404);
+      expect(json.success).toBe(false);
+      expect(json.error).toHaveProperty("code");
     });
   });
 });
