@@ -96,7 +96,7 @@ function App() {
   }
 
   return (
-    <LanguageProvider language={config?.language || "en"}>
+    <LanguageProvider language={config?.language || "in"}>
       {/* Loading overlay with exit animation */}
       <AnimatePresence>
         {isLoading && !config && (

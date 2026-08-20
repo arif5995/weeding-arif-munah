@@ -19,9 +19,6 @@ const LandingPage = ({ onOpenInvitation }) => {
   const fadeUp = useMotionPreset("fadeUp");
   const { t } = useTranslation();
 
-  const config = invitation;
-  const dateParts = formatEventDateParts(config?.date);
-
   if (isLoading) {
     return (
       <PhoneFrame>
@@ -115,6 +112,9 @@ const LandingPage = ({ onOpenInvitation }) => {
       </PhoneFrame>
     );
   }
+
+  const config = invitation;
+  const dateParts = formatEventDateParts(config?.date);
 
   return (
     <PhoneFrame>
