@@ -95,7 +95,13 @@ vi.mock("../src/server/db/client.js", () => {
       }
 
       // Wishes list query
-      if (sql.includes("SELECT id") && sql.includes("name") && sql.includes("message") && sql.includes("attendance") && sql.includes("FROM wishes")) {
+      if (
+        sql.includes("SELECT id") &&
+        sql.includes("name") &&
+        sql.includes("message") &&
+        sql.includes("attendance") &&
+        sql.includes("FROM wishes")
+      ) {
         // Filter by invitation_uid if present in params
         let filteredWishes = insertedWishes;
         if (params && params.length > 0 && params[0] === "test-wedding") {
@@ -106,7 +112,11 @@ vi.mock("../src/server/db/client.js", () => {
       }
 
       // Wishes count query
-      if (sql.includes("SELECT COUNT(*)") && !sql.includes("FILTER") && sql.includes("FROM wishes")) {
+      if (
+        sql.includes("SELECT COUNT(*)") &&
+        !sql.includes("FILTER") &&
+        sql.includes("FROM wishes")
+      ) {
         return { rows: [{ count: String(insertedWishes.length) }] };
       }
 
@@ -134,7 +144,11 @@ vi.mock("../src/server/db/client.js", () => {
       }
 
       // Check existing wish (by name and invitation_uid)
-      if (sql.includes("SELECT id FROM wishes WHERE") && sql.includes("name") && sql.includes("invitation_uid")) {
+      if (
+        sql.includes("SELECT id FROM wishes WHERE") &&
+        sql.includes("name") &&
+        sql.includes("invitation_uid")
+      ) {
         const name = params[1]; // params[0] is invitation_uid, params[1] is name
         const existing = insertedWishes.find((w) => w.name === name);
         if (existing) {

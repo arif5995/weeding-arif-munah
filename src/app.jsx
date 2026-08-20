@@ -150,7 +150,9 @@ function App() {
               >
                 Preparing
               </p>
-              <div className={cn("h-px w-[44px] bg-brand-primary mx-auto mt-4")} />
+              <div
+                className={cn("h-px w-[44px] bg-brand-primary mx-auto mt-4")}
+              />
             </div>
           </div>
         }

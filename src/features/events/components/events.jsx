@@ -15,7 +15,10 @@ export default function Events() {
 
   if (isLoading) {
     return (
-      <section id="event" className={cn("min-h-screen relative overflow-hidden")}>
+      <section
+        id="event"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
         <div className={cn("container mx-auto px-4 py-20 relative z-10")}>
           <motion.div
             variants={fade}
@@ -24,16 +27,30 @@ export default function Events() {
             viewport={{ once: true }}
             className={cn("text-center space-y-4 mb-16")}
           >
-            <motion.span variants={fadeUp} className={cn("inline-block text-brand-primary font-medium mb-2")}>
+            <motion.span
+              variants={fadeUp}
+              className={cn("inline-block text-brand-primary font-medium mb-2")}
+            >
               {t("events.saveTheDate")}
             </motion.span>
-            <motion.h2 variants={fadeUp} className={cn("text-4xl md:text-5xl font-script text-gray-800 leading-tight")}>
+            <motion.h2
+              variants={fadeUp}
+              className={cn(
+                "text-4xl md:text-5xl font-script text-gray-800 leading-tight",
+              )}
+            >
               {t("events.title")}
             </motion.h2>
-            <motion.p variants={fadeUp} className={cn("text-gray-500 max-w-md mx-auto")}>
+            <motion.p
+              variants={fadeUp}
+              className={cn("text-gray-500 max-w-md mx-auto")}
+            >
               {t("events.subtitle")}
             </motion.p>
-            <motion.div variants={scaleIn} className={cn("flex items-center justify-center gap-4 mt-6")}>
+            <motion.div
+              variants={scaleIn}
+              className={cn("flex items-center justify-center gap-4 mt-6")}
+            >
               <div className={cn("h-[1px] w-12 bg-brand-accent")} />
               <div className={cn("text-brand-primary/60")}>
                 <Heart className={cn("w-4 h-4")} fill="currentColor" />
@@ -42,7 +59,17 @@ export default function Events() {
             </motion.div>
           </motion.div>
           <div className={cn("flex items-center justify-center py-12")}>
-            <motion.div initial={{ width: 0 }} animate={{ width: 44 }} transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }} className={cn("h-px bg-brand-primary")} />
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: 44 }}
+              transition={{
+                duration: 1.2,
+                ease: "easeOut",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className={cn("h-px bg-brand-primary")}
+            />
           </div>
         </div>
       </section>
@@ -51,14 +78,37 @@ export default function Events() {
 
   if (error) {
     return (
-      <section id="event" className={cn("min-h-screen relative overflow-hidden")}>
-        <div className={cn("container mx-auto px-4 py-20 relative z-10 text-center")}>
-          <div className={cn("w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-4")}>
-            <svg className={cn("w-8 h-8 text-rose-500")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <section
+        id="event"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
+        <div
+          className={cn(
+            "container mx-auto px-4 py-20 relative z-10 text-center",
+          )}
+        >
+          <div
+            className={cn(
+              "w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-4",
+            )}
+          >
+            <svg
+              className={cn("w-8 h-8 text-rose-500")}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
-          <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>{t("events.errorTitle")}</h2>
+          <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>
+            {t("events.errorTitle")}
+          </h2>
           <p className={cn("text-gray-600")}>{error}</p>
         </div>
       </section>
@@ -67,19 +117,45 @@ export default function Events() {
 
   if (!agenda || agenda.length === 0) {
     return (
-      <section id="event" className={cn("min-h-screen relative overflow-hidden")}>
-        <div className={cn("container mx-auto px-4 py-20 relative z-10 text-center")}>
-          <motion.div variants={fade} initial="hidden" animate="visible" className={cn("space-y-4 mb-16")}>
-            <motion.span variants={fadeUp} className={cn("inline-block text-brand-primary font-medium mb-2")}>
+      <section
+        id="event"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
+        <div
+          className={cn(
+            "container mx-auto px-4 py-20 relative z-10 text-center",
+          )}
+        >
+          <motion.div
+            variants={fade}
+            initial="hidden"
+            animate="visible"
+            className={cn("space-y-4 mb-16")}
+          >
+            <motion.span
+              variants={fadeUp}
+              className={cn("inline-block text-brand-primary font-medium mb-2")}
+            >
               {t("events.saveTheDate")}
             </motion.span>
-            <motion.h2 variants={fadeUp} className={cn("text-4xl md:text-5xl font-script text-gray-800 leading-tight")}>
+            <motion.h2
+              variants={fadeUp}
+              className={cn(
+                "text-4xl md:text-5xl font-script text-gray-800 leading-tight",
+              )}
+            >
               {t("events.title")}
             </motion.h2>
-            <motion.p variants={fadeUp} className={cn("text-gray-500 max-w-md mx-auto")}>
+            <motion.p
+              variants={fadeUp}
+              className={cn("text-gray-500 max-w-md mx-auto")}
+            >
               {t("events.subtitle")}
             </motion.p>
-            <motion.div variants={scaleIn} className={cn("flex items-center justify-center gap-4 mt-6")}>
+            <motion.div
+              variants={scaleIn}
+              className={cn("flex items-center justify-center gap-4 mt-6")}
+            >
               <div className={cn("h-[1px] w-12 bg-brand-accent")} />
               <div className={cn("text-brand-primary/60")}>
                 <Heart className={cn("w-4 h-4")} fill="currentColor" />
@@ -98,7 +174,10 @@ export default function Events() {
   return (
     <>
       {/* Event Section */}
-      <section id="event" className={cn("min-h-screen relative overflow-hidden")}>
+      <section
+        id="event"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
         <motion.div
           variants={fade}
           initial="hidden"

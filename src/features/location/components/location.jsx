@@ -14,7 +14,10 @@ export default function Location() {
 
   if (isLoading) {
     return (
-      <section id="location" className={cn("min-h-screen relative overflow-hidden")}>
+      <section
+        id="location"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
         <div className={cn("container mx-auto px-4 py-20 relative z-10")}>
           <motion.div
             variants={staggerContainer()}
@@ -23,20 +26,39 @@ export default function Location() {
             viewport={{ once: true }}
             className={cn("text-center space-y-4 mb-16")}
           >
-            <motion.span variants={fadeUp} className={cn("inline-block text-brand-primary font-medium")}>
+            <motion.span
+              variants={fadeUp}
+              className={cn("inline-block text-brand-primary font-medium")}
+            >
               {t("location.eventVenue")}
             </motion.span>
-            <motion.h2 variants={fadeUp} className={cn("text-4xl md:text-5xl font-script text-gray-800")}>
+            <motion.h2
+              variants={fadeUp}
+              className={cn("text-4xl md:text-5xl font-script text-gray-800")}
+            >
               {t("location.title")}
             </motion.h2>
-            <motion.div variants={scaleIn} className={cn("flex items-center justify-center gap-4 pt-4")}>
+            <motion.div
+              variants={scaleIn}
+              className={cn("flex items-center justify-center gap-4 pt-4")}
+            >
               <div className={cn("h-[1px] w-12 bg-brand-accent")} />
               <MapPin className={cn("w-5 h-5 text-brand-primary/60")} />
               <div className={cn("h-[1px] w-12 bg-brand-accent")} />
             </motion.div>
           </motion.div>
           <div className={cn("flex items-center justify-center py-12")}>
-            <motion.div initial={{ width: 0 }} animate={{ width: 44 }} transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }} className={cn("h-px bg-brand-primary")} />
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: 44 }}
+              transition={{
+                duration: 1.2,
+                ease: "easeOut",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className={cn("h-px bg-brand-primary")}
+            />
           </div>
         </div>
       </section>
@@ -45,14 +67,37 @@ export default function Location() {
 
   if (error) {
     return (
-      <section id="location" className={cn("min-h-screen relative overflow-hidden")}>
-        <div className={cn("container mx-auto px-4 py-20 relative z-10 text-center")}>
-          <div className={cn("w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-4")}>
-            <svg className={cn("w-8 h-8 text-rose-500")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <section
+        id="location"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
+        <div
+          className={cn(
+            "container mx-auto px-4 py-20 relative z-10 text-center",
+          )}
+        >
+          <div
+            className={cn(
+              "w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-4",
+            )}
+          >
+            <svg
+              className={cn("w-8 h-8 text-rose-500")}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
-          <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>{t("location.errorTitle")}</h2>
+          <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>
+            {t("location.errorTitle")}
+          </h2>
           <p className={cn("text-gray-600")}>{error}</p>
         </div>
       </section>
@@ -68,7 +113,10 @@ export default function Location() {
   return (
     <>
       {/* Location section */}
-      <section id="location" className={cn("min-h-screen relative overflow-hidden")}>
+      <section
+        id="location"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
         <div className={cn("container mx-auto px-4 py-20 relative z-10")}>
           {/* Section Header */}
           <motion.div

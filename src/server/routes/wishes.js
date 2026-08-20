@@ -53,7 +53,11 @@ wishesRoutes.get(
   zValidator("query", wishesQuerySchema),
   async (c) => {
     const { limit, offset } = c.req.valid("query");
-    const result = await getWishes({ invitationUid: LEGACY_INVITATION_UID, limit, offset });
+    const result = await getWishes({
+      invitationUid: LEGACY_INVITATION_UID,
+      limit,
+      offset,
+    });
     return c.json(result);
   },
 );
@@ -67,7 +71,12 @@ wishesRoutes.post(
   zValidator("json", createWishSchema),
   async (c) => {
     const { name, message, attendance } = c.req.valid("json");
-    const result = await createWish({ invitationUid: LEGACY_INVITATION_UID, name, message, attendance });
+    const result = await createWish({
+      invitationUid: LEGACY_INVITATION_UID,
+      name,
+      message,
+      attendance,
+    });
     return c.json(result, 201);
   },
 );
@@ -138,7 +147,12 @@ wishesRoutes.post(
   async (c) => {
     const { uid } = c.req.valid("param");
     const { name, message, attendance } = c.req.valid("json");
-    const result = await createWish({ invitationUid: uid, name, message, attendance });
+    const result = await createWish({
+      invitationUid: uid,
+      name,
+      message,
+      attendance,
+    });
     return c.json(result, 201);
   },
 );

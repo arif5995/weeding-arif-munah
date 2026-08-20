@@ -58,7 +58,9 @@ export function useBankData() {
       if (response.success) {
         return response.data;
       }
-      throw new Error(response.error?.message || "Failed to fetch bank accounts");
+      throw new Error(
+        response.error?.message || "Failed to fetch bank accounts",
+      );
     },
     enabled: !!uid,
     staleTime: 10 * 60 * 1000,

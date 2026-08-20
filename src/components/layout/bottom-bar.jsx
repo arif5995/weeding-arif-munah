@@ -125,14 +125,20 @@ const BottomBar = () => {
   // Show loading state
   if (isLoading) {
     return (
-      <div className={cn("fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4")}>
+      <div
+        className={cn(
+          "fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4",
+        )}
+      >
         <motion.div
           className={cn("w-auto")}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: DURATION.base }}
         >
-          <div className={cn("h-2 w-32 bg-gray-200 rounded-full overflow-hidden")}>
+          <div
+            className={cn("h-2 w-32 bg-gray-200 rounded-full overflow-hidden")}
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: "100%" }}
