@@ -6,6 +6,7 @@ import BottomBar from "@/components/layout/bottom-bar";
 import { useMotionPreset } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import PhoneFrame from "./phone-frame";
+import Mandala from "./mandala";
 
 /**
  * Layout component that wraps the main invitation content.
@@ -40,7 +41,7 @@ const Layout = ({ children, audioControls }) => {
     }
   }, [isPlaying, invitation?.audio?.toastDuration]);
 
-  // Loading state
+// Loading state
   if (isLoading) {
     return (
       <PhoneFrame>
@@ -50,16 +51,12 @@ const Layout = ({ children, audioControls }) => {
           initial="hidden"
           animate="visible"
         >
+          <Mandala />
           <div className={cn("flex items-center justify-center h-screen")}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: 44 }}
-              transition={{
-                duration: 1.2,
-                ease: "easeOut",
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
+              transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }}
               className={cn("h-px bg-brand-primary")}
             />
           </div>
@@ -78,6 +75,9 @@ const Layout = ({ children, audioControls }) => {
         initial="hidden"
         animate="visible"
       >
+        {/* Mandala decorative ornament at top */}
+        <Mandala />
+
         {/* Music Control Button with Status Indicator */}
         {toggle && (
           <motion.button
