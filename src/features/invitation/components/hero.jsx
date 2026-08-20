@@ -2,7 +2,7 @@ import { Calendar, Clock, Heart } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useInvitationData } from "@/features/invitation/hooks/use-invitation-data";
 import { formatEventDate } from "@/lib/format-event-date";
 import { getGuestName } from "@/lib/invitation-storage";
 import { useTranslation } from "@/lib/i18n";
@@ -16,7 +16,7 @@ import {
 
 export default function Hero() {
   const { t } = useTranslation();
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const { invitation, isLoading, error } = useInvitationData();
   const [guestName, setGuestName] = useState("");
   const reduceMotion = useReducedMotionFlag();
   const fade = useMotionPreset("fade");
@@ -55,6 +55,8 @@ export default function Hero() {
       }, 1000);
       return () => clearInterval(timer);
     }, [calculateTimeLeft]);
+
+    if (!targetDate) return null;
 
     return (
       <div className={cn("grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8")}>
@@ -140,6 +142,90 @@ export default function Hero() {
     );
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <section
+        id="home"
+        className={cn(
+          "min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden",
+        )}
+      >
+        <div
+          className={cn("flex flex-col items-center justify-center space-y-4")}
+        >
+          <div
+            className={cn(
+              "w-12 h-12 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin",
+            )}
+          />
+          <p className={cn("text-gray-500 font-light italic")}>
+            {t("hero.loading")}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section
+        id="home"
+        className={cn(
+          "min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden",
+        )}
+      >
+        <div className={cn("text-center space-y-4")}>
+          <div
+            className={cn(
+              "w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center",
+            )}
+          >
+            <svg
+              className={cn("w-8 h-8 text-rose-500")}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <h2 className={cn("text-2xl font-semibold text-gray-800")}>
+            {t("hero.errorTitle")}
+          </h2>
+          <p className={cn("text-gray-600")}>{error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  // No invitation data
+  if (!invitation) {
+    return (
+      <section
+        id="home"
+        className={cn(
+          "min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden",
+        )}
+      >
+        <div className={cn("text-center space-y-4")}>
+          <h2 className={cn("text-2xl font-semibold text-gray-800")}>
+            {t("hero.notFound")}
+          </h2>
+          <p className={cn("text-gray-600")}>{t("hero.notFoundDesc")}</p>
+        </div>
+      </section>
+    );
+  }
+
+  const config = invitation;
+
   return (
     <>
       <section
@@ -192,7 +278,6 @@ export default function Hero() {
                 "w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-brand-accent to-transparent",
               )}
             />
-
             <div
               className={cn(
                 "relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-brand-accent-soft/50",

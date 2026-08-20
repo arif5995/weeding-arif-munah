@@ -56,7 +56,7 @@ export default function Wishes() {
     const checkSubmissionStatus = async () => {
       if (uid && guestName && isNameFromInvitation) {
         try {
-          const response = await checkWishSubmitted(guestName);
+          const response = await checkWishSubmitted(uid, guestName);
           if (response.success && response.hasSubmitted) {
             setHasSubmittedWish(true);
           }
@@ -101,7 +101,7 @@ export default function Wishes() {
   } = useQuery({
     queryKey: ["wishes", uid],
     queryFn: async () => {
-      const response = await fetchWishes({
+      const response = await fetchWishes(uid, {
         limit: 50,
         offset: 0,
       });
@@ -118,7 +118,7 @@ export default function Wishes() {
 
   // Mutation for creating wishes
   const createWishMutation = useMutation({
-    mutationFn: (wishData) => createWish(wishData),
+    mutationFn: (wishData) => createWish(uid, wishData),
     onSuccess: (response) => {
       if (response.success) {
         // Optimistically update the cache
@@ -338,14 +338,14 @@ export default function Wishes() {
                           {/* New badge */}
                           {Date.now() - new Date(wish.created_at).getTime() <
                             3600000 && (
-                              <span
-                                className={cn(
-                                  "flex-shrink-0 px-2 py-0.5 rounded-full bg-brand-accent-soft text-brand-primary text-xs font-medium",
-                                )}
-                              >
-                                New
-                              </span>
-                            )}
+                            <span
+                              className={cn(
+                                "flex-shrink-0 px-2 py-0.5 rounded-full bg-brand-accent-soft text-brand-primary text-xs font-medium",
+                              )}
+                            >
+                              New
+                            </span>
+                          )}
                         </div>
 
                         {/* Message */}
@@ -661,7 +661,7 @@ export default function Wishes() {
                         >
                           {attendance
                             ? options.find((opt) => opt.value === attendance)
-                              ?.label
+                                ?.label
                             : t("wishes.attendancePlaceholder")}
                         </span>
                         <ChevronDown

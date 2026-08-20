@@ -13,6 +13,8 @@ import { logger } from "hono/logger";
 // Feature routes
 import { wishesRoutes } from "./routes/wishes.js";
 import { weddingRoutes } from "./routes/wedding.js";
+import { bankRoutes } from "./routes/bank.js";
+import { agendaRoutes } from "./routes/agenda.js";
 import { getDbClient } from "./db/client.js";
 
 // Create single Hono app
@@ -118,11 +120,23 @@ app.get("/api/health/db", async (c) => {
 
 // ============ Mount Feature Routes ============
 
-// Wishes routes: /api/test-wedding/wishes
+// Legacy wishes routes: /api/test-wedding/wishes (for backward compatibility)
 app.route("/api/test-wedding", wishesRoutes);
 
-// Wedding routes: /api/wedding
+// New dynamic wishes routes: /api/:uid/wishes
+app.route("/api", wishesRoutes);
+
+// Wedding routes at /api/wedding (legacy)
 app.route("/api/wedding", weddingRoutes);
+
+// Wedding routes at /api (new pattern: /api/:uid/invitations, /api/:uid/bank, /api/:uid/agenda)
+app.route("/api", weddingRoutes);
+
+// Bank routes: /api/:uid/bank
+app.route("/api", bankRoutes);
+
+// Agenda routes: /api/:uid/agenda
+app.route("/api", agendaRoutes);
 
 // ============ Export ============
 

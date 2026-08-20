@@ -25,7 +25,11 @@
     "days": "Hari",
     "hours": "Jam",
     "minutes": "Menit",
-    "seconds": "Detik"
+    "seconds": "Detik",
+    "loading": "Memuat undangan...",
+    "errorTitle": "Gagal Memuat Undangan",
+    "notFound": "Undangan Tidak Ditemukan",
+    "notFoundDesc": "Silakan periksa URL Anda atau hubungi penyelenggara."
   },
   "events": {
     "saveTheDate": "Catat Tanggal Penting Ini",
@@ -34,12 +38,15 @@
     "addToCalendar": "Tambah ke Kalender",
     "googleCalendar": "Google Calendar",
     "appleCalendar": "Apple Calendar",
-    "outlookCalendar": "Outlook Calendar"
+    "outlookCalendar": "Outlook Calendar",
+    "errorTitle": "Gagal Memuat Acara",
+    "emptyState": "Belum ada jadwal acara."
   },
   "location": {
     "eventVenue": "Lokasi Acara",
     "title": "Lokasi",
-    "viewMap": "Buka Peta"
+    "viewMap": "Buka Peta",
+    "errorTitle": "Gagal Memuat Lokasi"
   },
   "gifts": {
     "subTitle": "Hadiah Pernikahan",
@@ -47,7 +54,8 @@
     "message": "Insya Allah, Kami Akan Menyalurkan Semua Hadiah yang Diberikan ke Beberapa Masjid dan Lembaga yang Membutuhkan",
     "copy": "Salin",
     "copied": "Tersalin!",
-    "accountName": "Atas Nama"
+    "accountName": "Atas Nama",
+    "errorTitle": "Gagal Memuat Hadiah"
   },
   "wishes": {
     "subTitle": "Kirimkan Doa dan Harapan Terbaik Anda",

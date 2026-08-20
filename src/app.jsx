@@ -20,7 +20,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useInvitation } from "@/features/invitation";
 import { useMeta } from "@/hooks/use-meta";
 import { useAudio } from "@/hooks/use-audio";
-import staticConfig from "@/config/config";
 import { LanguageProvider } from "@/lib/i18n";
 import { useMotionPreset } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -58,13 +57,10 @@ function App() {
   const pageEnter = useMotionPreset("pageEnter");
   const pageExit = useMotionPreset("pageExit");
 
-  // Use config from API if available, otherwise fall back to static config
-  const activeConfig = config || staticConfig.data;
-
-  // Initialize audio with config settings
+  // Initialize audio with config settings - will be updated when config loads
   const audioControls = useAudio({
-    src: activeConfig?.audio?.src || "/audio/fulfilling-humming.mp3",
-    loop: activeConfig?.audio?.loop !== false,
+    src: config?.audio?.src || "/audio/fulfilling-humming.mp3",
+    loop: config?.audio?.loop !== false,
   });
 
   // Handle opening the invitation - this is called from a user click,
@@ -75,10 +71,10 @@ function App() {
     setIsInvitationOpen(true);
   };
 
-  useMeta(activeConfig);
+  useMeta(config);
 
   // Show error state only if we have no config at all
-  if (error && !config && !staticConfig.data) {
+  if (error && !config) {
     return (
       <div
         className={cn(
@@ -87,7 +83,7 @@ function App() {
       >
         <div className={cn("text-center max-w-md mx-auto p-6")}>
           <div className={cn("text-rose-500 text-6xl mb-4")}>!</div>
-          <h1 className={cn("text-2xlfont-fahkwang  text-gray-800 mb-2")}>
+          <h1 className={cn("text-2xl font-fahkwang text-gray-800 mb-2")}>
             Invitation Not Found
           </h1>
           <p className={cn("text-gray-600 mb-4")}>{error.message}</p>
@@ -100,7 +96,7 @@ function App() {
   }
 
   return (
-    <LanguageProvider language={activeConfig?.language || "en"}>
+    <LanguageProvider language={config?.language || "id"}>
       {/* Loading overlay with exit animation */}
       <AnimatePresence>
         {isLoading && !config && (
@@ -110,7 +106,7 @@ function App() {
             exit={{ y: "-100%", opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className={cn(
-              "fixed inset-0 z-50 flex items-center justify-center bg-[#faf9f7]",
+              "fixed inset-0 z-50 flex items-center justify-center bg-brand-bg",
             )}
             role="status"
             aria-label="Loading invitation"
@@ -130,7 +126,7 @@ function App() {
                 initial={{ width: 0 }}
                 animate={{ width: 44 }}
                 transition={{ delay: 0.7, duration: 1.2, ease: "easeOut" }}
-                className={cn("h-px bg-rose-600 mx-auto mt-4")}
+                className={cn("h-px bg-brand-primary mx-auto mt-4")}
               />
             </div>
           </motion.div>
@@ -141,7 +137,7 @@ function App() {
         fallback={
           <div
             className={cn(
-              "fixed inset-0 z-50 flex items-center justify-center bg-[#faf9f7]",
+              "fixed inset-0 z-50 flex items-center justify-center bg-brand-bg",
             )}
             role="status"
             aria-label="Loading"
@@ -154,7 +150,9 @@ function App() {
               >
                 Preparing
               </p>
-              <div className={cn("h-px w-[44px] bg-rose-600 mx-auto mt-4")} />
+              <div
+                className={cn("h-px w-[44px] bg-brand-primary mx-auto mt-4")}
+              />
             </div>
           </div>
         }

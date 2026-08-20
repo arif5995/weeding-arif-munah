@@ -1,4 +1,4 @@
-import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useBankData } from "@/features/invitation/hooks/use-invitation-data";
 import { useTranslation } from "@/lib/i18n";
 import { motion } from "motion/react";
 import { Copy, Gift, CheckCircle, Wallet, Building2 } from "lucide-react";
@@ -7,7 +7,7 @@ import { useMotionPreset, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export default function Gifts() {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const { banks, isLoading, error } = useBankData();
   const { t } = useTranslation();
   const [copiedAccount, setCopiedAccount] = useState(null);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -26,8 +26,99 @@ export default function Gifts() {
     setTimeout(() => setCopiedAccount(null), 2000);
   };
 
-  // Hide section if config or banks data is not set
-  if (!config?.banks || config.banks.length === 0) {
+  if (isLoading) {
+    return (
+      <section
+        id="gifts"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
+        <div className={cn("container mx-auto px-4 py-20 relative z-10")}>
+          <motion.div
+            variants={staggerContainer()}
+            initial="hidden"
+            animate="visible"
+            className={cn("text-center space-y-4 mb-16")}
+          >
+            <motion.span
+              variants={fadeUp}
+              className={cn("inline-block text-brand-primary font-medium")}
+            >
+              {t("gifts.subTitle")}
+            </motion.span>
+            <motion.h2
+              variants={fadeUp}
+              className={cn("text-4xl md:text-5xl font-script text-gray-800")}
+            >
+              {t("gifts.title")}
+            </motion.h2>
+            <motion.div
+              variants={scaleIn}
+              className={cn("flex items-center justify-center gap-4 pt-4")}
+            >
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
+              <Gift className={cn("w-5 h-5 text-brand-primary/60")} />
+              <div className={cn("h-[1px] w-12 bg-brand-accent")} />
+            </motion.div>
+          </motion.div>
+          <div className={cn("flex items-center justify-center py-12")}>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: 44 }}
+              transition={{
+                duration: 1.2,
+                ease: "easeOut",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className={cn("h-px bg-brand-primary")}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section
+        id="gifts"
+        className={cn("min-h-screen relative overflow-hidden")}
+      >
+        <div
+          className={cn(
+            "container mx-auto px-4 py-20 relative z-10 text-center",
+          )}
+        >
+          <div
+            className={cn(
+              "w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-4",
+            )}
+          >
+            <svg
+              className={cn("w-8 h-8 text-rose-500")}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>
+            {t("gifts.errorTitle")}
+          </h2>
+          <p className={cn("text-gray-600")}>{error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Hide section if banks data is not set
+  if (!banks || banks.length === 0) {
     return null;
   }
 
@@ -110,9 +201,9 @@ export default function Gifts() {
             animate={hasAnimated ? "visible" : "hidden"}
             className={cn("max-w-2xl mx-auto grid gap-6")}
           >
-            {config.banks.map((account) => (
+            {banks.map((account) => (
               <motion.div
-                key={account.accountNumber}
+                key={account.id}
                 variants={fadeUp}
                 className={cn("relative group")}
               >
@@ -139,7 +230,7 @@ export default function Gifts() {
                       </div>
                       <div>
                         <h3 className={cn("font-medium text-gray-800")}>
-                          {account.bank}
+                          {account.bankName}
                         </h3>
                         <p className={cn("text-sm text-gray-500")}>
                           {account.accountName}
@@ -162,24 +253,37 @@ export default function Gifts() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() =>
-                          copyToClipboard(account.accountNumber, account.bank)
+                          copyToClipboard(
+                            account.accountNumber,
+                            account.bankName,
+                          )
                         }
                         className={cn(
                           "flex items-center space-x-1 text-brand-primary hover:text-brand-primary-hover",
                         )}
                       >
-                        {copiedAccount === account.bank ? (
+                        {copiedAccount === account.bankName ? (
                           <CheckCircle className={cn("w-4 h-4")} />
                         ) : (
                           <Copy className={cn("w-4 h-4")} />
                         )}
                         <span className={cn("text-sm")}>
-                          {copiedAccount === account.bank
+                          {copiedAccount === account.bankName
                             ? t("gifts.copied")
                             : t("gifts.copy")}
                         </span>
                       </motion.button>
                     </div>
+
+                    {account.type && (
+                      <span
+                        className={cn(
+                          "inline-block px-2 py-1 text-xs font-medium text-brand-accent bg-brand-accent-soft rounded-full mt-2",
+                        )}
+                      >
+                        {account.type}
+                      </span>
+                    )}
                   </div>
                 </div>
               </motion.div>

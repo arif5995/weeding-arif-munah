@@ -117,7 +117,29 @@ export const formatEventDate = (
  * formatEventDateParts("2024-12-14T00:00:00.000Z")
  */
 export const formatEventDateParts = (isoString, isJakartaTime = false) => {
+  if (!isoString) {
+    return {
+      day: "",
+      date: "",
+      month: "",
+      year: "",
+    };
+  }
+
   let date = new Date(isoString);
+
+  if (isJakartaTime && !isoString.endsWith("Z")) {
+    date = new Date(`${isoString}Z`);
+  }
+
+  if (Number.isNaN(date.getTime())) {
+    return {
+      day: "",
+      date: "",
+      month: "",
+      year: "",
+    };
+  }
 
   if (isJakartaTime && isoString && !isoString.endsWith("Z")) {
     date = new Date(isoString + "Z");

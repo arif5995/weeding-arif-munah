@@ -1,5 +1,5 @@
 import { useTranslation } from "@/lib/i18n";
-import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useInvitationData } from "@/features/invitation/hooks/use-invitation-data";
 import { formatEventDateParts } from "@/lib/format-event-date";
 import { motion } from "motion/react";
 import {
@@ -13,13 +13,108 @@ import CornerDecoration from "./corner-decoration";
 import PhoneFrame from "@/components/layout/phone-frame";
 
 const LandingPage = ({ onOpenInvitation }) => {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const { invitation, isLoading, error } = useInvitationData();
   const reduceMotion = useReducedMotionFlag();
   const fade = useMotionPreset("fade");
   const fadeUp = useMotionPreset("fadeUp");
   const { t } = useTranslation();
 
-  const dateParts = formatEventDateParts(config.date);
+  if (isLoading) {
+    return (
+      <PhoneFrame>
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          animate="visible"
+          className={cn("min-h-screen relative overflow-hidden")}
+        >
+          <div className={cn("flex items-center justify-center h-screen")}>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: 44 }}
+              transition={{
+                duration: 1.2,
+                ease: "easeOut",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className={cn("h-px bg-brand-primary")}
+            />
+          </div>
+        </motion.div>
+      </PhoneFrame>
+    );
+  }
+
+  if (error) {
+    return (
+      <PhoneFrame>
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          animate="visible"
+          className={cn("min-h-screen relative overflow-hidden")}
+        >
+          <div
+            className={cn(
+              "flex items-center justify-center h-screen text-center px-4",
+            )}
+          >
+            <div
+              className={cn(
+                "w-16 h-16 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-4",
+              )}
+            >
+              <svg
+                className={cn("w-8 h-8 text-rose-500")}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>
+              {t("landing.errorTitle")}
+            </h2>
+            <p className={cn("text-gray-600")}>{error}</p>
+          </div>
+        </motion.div>
+      </PhoneFrame>
+    );
+  }
+
+  if (!invitation) {
+    return (
+      <PhoneFrame>
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          animate="visible"
+          className={cn("min-h-screen relative overflow-hidden")}
+        >
+          <div
+            className={cn(
+              "flex items-center justify-center h-screen text-center px-4",
+            )}
+          >
+            <h2 className={cn("text-2xl font-semibold text-gray-800 mb-2")}>
+              {t("landing.notFound")}
+            </h2>
+            <p className={cn("text-gray-600")}>{t("landing.notFoundDesc")}</p>
+          </div>
+        </motion.div>
+      </PhoneFrame>
+    );
+  }
+
+  const config = invitation;
+  const dateParts = formatEventDateParts(config?.date);
 
   return (
     <PhoneFrame>

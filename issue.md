@@ -1,657 +1,1137 @@
-Target akhirnya:
+# Supabase Database Integration Plan
+## Project: `weeding-arif-munah`
+## Branch: `fix/wishes-api-client`
 
-Vercel
-│
-├── Frontend
-│   └── React + Vite
-│
-└── Backend
-    └── Hono → Vercel Functions
-         │
-         └── PostgreSQL / database
+Repository:
+https://github.com/arif5995/weeding-arif-munah
 
-Dan endpoint:
+> Tujuan dokumen ini adalah menjadi panduan kerja untuk junior developer / free AI coding agent.
+> Fokus: menghubungkan backend project dengan schema PostgreSQL/Supabase yang sudah tersedia,
+> memetakan seluruh column ke response API, dan memastikan frontend mengambil data melalui API.
+>
+> Jangan membuat ulang schema database. Gunakan schema Supabase yang diberikan user sebagai source of truth.
 
-GET /api/test-wedding/wishes?limit=50&offset=0
+---
 
-harus berjalan.
+## 1. Kondisi Database yang Sudah Ada
 
-1. Arsitektur target
+Database Supabase memiliki 4 tabel:
 
-Saya menyarankan jangan mempertahankan struktur Cloudflare Workers lama lalu dipaksa berjalan di Vercel.
+- `public.invitations`
+- `public.agenda`
+- `public.banks`
+- `public.wishes`
 
-Refactor menjadi:
+Relasi utama:
 
-weeding-arif-munah/
-│
-├── api/
-│   └── [[...route]].js
-│
-├── src/
-│   ├── client/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   └── ...
-│   │
-│   ├── server/
-│   │   ├── index.js
-│   │   ├── routes/
-│   │   │   ├── wishes.js
-│   │   │   ├── wedding.js
-│   │   │   └── ...
-│   │   │
-│   │   ├── services/
-│   │   │   ├── wishes.service.js
-│   │   │   └── ...
-│   │   │
-│   │   ├── db/
-│   │   │   ├── client.js
-│   │   │   └── ...
-│   │   │
-│   │   └── middleware/
-│   │
-│   └── ...
-│
-├── public/
-│   └── assets/
-│
-├── index.html
-├── package.json
-├── vite.config.js
-├── vercel.json
-└── .env.example
-Prinsipnya
+```text
+invitations.uid
+     │
+     ├── agenda.invitation_uid
+     ├── banks.invitation_uid
+     └── wishes.invitation_uid
+```
 
-Frontend:
+`invitations.uid` adalah business identifier yang digunakan oleh API, bukan `invitations.id`.
 
-src/client/*
+### `invitations`
 
-Backend:
+| Column | PostgreSQL type | Nullable | Kegunaan |
+|---|---|---:|---|
+| id | bigint | NO | Primary key internal |
+| uid | varchar | NO | Identifier invitation, UNIQUE |
+| title | varchar | NO | Judul undangan |
+| description | text | YES | Deskripsi |
+| groom_name | varchar | NO | Nama mempelai pria |
+| bride_name | varchar | NO | Nama mempelai wanita |
+| parent_groom | text | YES | Orang tua mempelai pria |
+| parent_bride | text | YES | Orang tua mempelai wanita |
+| wedding_date | date | YES | Tanggal acara |
+| time | varchar | YES | Informasi waktu |
+| location | varchar | YES | Nama lokasi |
+| address | text | YES | Alamat |
+| maps_url | text | YES | URL Google Maps |
+| maps_embed | text | YES | Embed Maps |
+| og_image | text | YES | Open Graph image |
+| favicon | text | YES | Favicon |
+| audio | text | YES | Audio URL |
+| created_at | timestamptz | NO | Waktu dibuat |
+| updated_at | timestamptz | NO | Waktu diperbarui |
 
-src/server/*
+### `agenda`
 
-Vercel entry point:
+| Column | PostgreSQL type | Nullable | Kegunaan |
+|---|---|---:|---|
+| id | bigint | NO | Primary key |
+| invitation_uid | varchar | NO | FK ke `invitations.uid` |
+| title | varchar | NO | Nama agenda |
+| date | date | YES | Tanggal |
+| start_time | time | YES | Waktu mulai |
+| end_time | time | YES | Waktu selesai |
+| location | varchar | YES | Lokasi |
+| address | text | YES | Alamat |
+| order_index | integer | NO | Urutan |
+| created_at | timestamptz | NO | Waktu dibuat |
 
-api/[[...route]].js
+### `banks`
 
-Jadi tidak ada lagi kebingungan antara:
+| Column | PostgreSQL type | Nullable | Kegunaan |
+|---|---|---:|---|
+| id | bigint | NO | Primary key |
+| invitation_uid | varchar | NO | FK ke `invitations.uid` |
+| bank | varchar | NO | Nama bank |
+| account_number | varchar | NO | Nomor rekening |
+| account_name | varchar | NO | Nama pemilik |
+| order_index | integer | NO | Urutan |
+| created_at | timestamptz | NO | Waktu dibuat |
 
-Cloudflare Worker
-Vite server
-Hono server
-Vercel Function
-2. Jangan menggunakan Cloudflare Worker sebagai runtime
+### `wishes`
 
-Ini salah satu pekerjaan paling penting.
+| Column | PostgreSQL type | Nullable | Kegunaan |
+|---|---|---:|---|
+| id | bigint | NO | Primary key |
+| invitation_uid | varchar | NO | FK ke `invitations.uid` |
+| name | varchar | NO | Nama tamu |
+| message | varchar | NO | Ucapan |
+| attendance | varchar | NO | `ATTENDING`, `NOT_ATTENDING`, atau `MAYBE` |
+| created_at | timestamptz | NO | Waktu dibuat |
 
-Project sekarang memiliki indikasi arsitektur yang awalnya dibuat untuk:
+---
 
-Hono
-+
-Cloudflare Workers
-+
-Wrangler
+Buatkan file Database.md
 
-Sedangkan target baru:
+# 2. Source of Truth Project
 
-Hono
-+
-Vercel Functions
-+
-Node.js
+Branch yang harus digunakan:
 
-Jadi semua dependency/API yang khusus Cloudflare harus diaudit.
+```text
+fix/wishes-api-client
+```
 
-Cari seluruh project:
+Jangan bekerja langsung berdasarkan `main` jika branch tersebut belum berisi perubahan terbaru.
 
-wrangler
-cloudflare
-c.env
-env.
-ExecutionContext
-DurableObject
-KV
-D1
-R2
+Backend branch saat ini menggunakan Hono dan memiliki satu application entry point di:
 
-Kalau ditemukan, klasifikasikan:
-
-Komponen	Action
-Cloudflare-specific	Hapus/refactor
-Hono standard	Pertahankan
-Database	Pertahankan jika compatible
-Environment variable	Refactor
-Static assets	Vite/public
-API route	Hono
-Wrangler config	Tidak digunakan Vercel
-3. Buat satu Hono App sebagai API gateway
-
-Saya akan menjadikan:
-
+```text
 src/server/index.js
+```
 
-sebagai satu-satunya root API.
+File tersebut sudah mengekspor:
 
-Contoh konsep:
+```js
+export default app;
+```
 
-import { Hono } from 'hono'
+dan saat ini memasang:
 
+```text
+/api/test-wedding/*       -> wishesRoutes
+/api/wedding/*            -> weddingRoutes
+```
 
-import wishes from './routes/wishes.js'
-import wedding from './routes/wedding.js'
+Source code branch menunjukkan `src/server/db/client.js` menggunakan package `pg`, connection pool, dan membaca:
 
+```text
+DATABASE_URL
+```
 
-const app = new Hono()
+dari environment variable. SSL juga diaktifkan untuk koneksi database serverless.
 
+Referensi:
+- `src/server/index.js`
+- `src/server/db/client.js`
+- `src/services/api.js`
 
-app.get('/health', (c) => {
-  return c.json({
-    success: true,
-    service: 'wedding-api'
-  })
-})
+---
 
+# 3. Arsitektur yang Harus Dicapai
 
-app.route('/test-wedding', wishes)
-app.route('/wedding', wedding)
+Jangan membuat frontend langsung mengakses Supabase menggunakan anon key.
 
+Gunakan:
 
-export default app
+```text
+React/Vite
+    │
+    │ fetch()
+    ▼
+Vercel API / Hono
+    │
+    │ pg Pool
+    ▼
+Supabase PostgreSQL
+```
 
-Dengan begitu:
+Bukan:
 
-/api/health
-/api/test-wedding/wishes
-/api/wedding/...
+```text
+React
+   │
+   └── langsung SELECT Supabase
+```
 
-semuanya melewati satu Hono application.
+Dengan demikian `DATABASE_URL` tetap berada di server dan tidak masuk bundle browser.
 
-4. Vercel Function dibuat sangat sederhana
+---
 
-Saya akan membuat:
+# 4. Environment Variable
 
-api/[[...route]].js
+Backend branch saat ini menggunakan:
 
-yang bertugas sebagai adapter saja.
+```env
+DATABASE_URL=...
+```
 
-Konsepnya:
+Pastikan variable tersebut tersedia di Vercel:
 
-import { handle } from 'hono/vercel'
-import app from '../src/server/index.js'
-
-
-export default handle(app)
-
-Jangan taruh business logic di:
-
-api/[[...route]].js
-
-File itu hanya adapter.
-
-Arsitekturnya:
-
-Request
-   ↓
-Vercel
-   ↓
-api/[[...route]].js
-   ↓
-Hono
-   ↓
-src/server/routes
-   ↓
-service
-   ↓
-database
-5. Pisahkan route dan business logic
-
-Jangan membuat route seperti:
-
-app.get('/test-wedding/wishes', async (c) => {
-
-
-   // query database
-
-
-   // validation
-
-
-   // pagination
-
-
-   // transformation
-
-
-   // response
-
-
-})
-
-Lebih baik:
-
-routes/
-└── wishes.js
-
-
-services/
-└── wishes.service.js
-
-Route:
-
-wishes.get('/wishes', async (c) => {
-    const result = await getWishes(...)
-    return c.json(result)
-})
-
-Service:
-
-export async function getWishes({
-    limit,
-    offset
-}) {
-    // database logic
-}
-
-Keuntungannya nanti kalau frontend berubah atau API dipakai aplikasi lain, backend tetap mudah dirawat.
-
-6. Database layer harus dipisahkan
-
-Buat:
-
-src/server/db/client.js
-
-Semua koneksi database hanya melalui file tersebut.
-
-Misalnya menggunakan PostgreSQL:
-
-import { Pool } from 'pg'
-
-
-export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-})
-
-Jangan membuat connection baru setiap request:
-
-app.get(... => {
-   const db = new Pool(...)
-})
-
-karena serverless mempunyai lifecycle yang berbeda.
-
-Gunakan connection pooling/serverless-compatible database jika database Anda memang PostgreSQL.
-
-7. Environment variables
-
-Ini juga harus dibersihkan.
-
-Buat:
-
-.env.example
-
-misalnya:
-
-DATABASE_URL=
-
-Kemudian:
-
+```text
 Vercel
 → Project
 → Settings
 → Environment Variables
+```
 
-isi:
+Minimal:
 
+```text
 DATABASE_URL
+```
 
-Jangan:
+Gunakan connection string PostgreSQL Supabase yang sesuai untuk serverless/transaction pooling.
 
-DATABASE_URL=...
+Jangan memasukkan:
 
-di-commit ke GitHub.
+```text
+DATABASE_URL
+password database
+service role key
+```
 
-8. Bedakan environment frontend dan backend
+ke dalam file frontend atau `VITE_*`.
 
-Ini penting untuk Vite.
+Jangan commit secret ke GitHub.
 
-Variable frontend:
+---
 
-VITE_*
+# 5. Mapping Database → Backend API
 
-misalnya:
+## 5.1 Invitation
 
-VITE_API_URL=
+Endpoint:
 
-Tetapi credential database:
-
-DATABASE_URL=
-
-tidak boleh menggunakan prefix:
-
-VITE_DATABASE_URL
-
-karena variable VITE_* dapat masuk ke bundle frontend.
-
-Struktur:
-
-Frontend
-   │
-   └── VITE_API_URL
-
-
-Backend
-   │
-   ├── DATABASE_URL
-   ├── SECRET_KEY
-   └── ...
-9. API URL frontend
-
-Jangan hardcode:
-
-fetch('http://localhost:3000/api/test-wedding/wishes')
-
-atau:
-
-fetch('https://munaharif-wedding.vercel.app/api/...')
-
-Gunakan relative URL:
-
-fetch('/api/test-wedding/wishes?limit=50&offset=0')
-
-Ini jauh lebih bagus.
-
-Development:
-
-localhost
-↓
-/api
-
-Production:
-
-munaharif-wedding.vercel.app
-↓
-/api
-
-Tidak perlu mengubah source code.
-
-10. Vercel configuration
-
-Saya akan menyederhanakan vercel.json.
-
-Target:
-
-{
-  "buildCommand": "bun run build",
-  "installCommand": "bun install",
-  "outputDirectory": "dist"
-}
-
-Jangan langsung menambahkan rewrite SPA kalau belum diperlukan.
-
-Kenapa?
-
-Vercel + Vite sudah bisa menangani static output.
-
-Kalau React Router membutuhkan fallback SPA, baru tambahkan rewrite yang tidak menangkap /api.
-
-Contohnya:
-
-{
-  "buildCommand": "bun run build",
-  "installCommand": "bun install",
-  "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/((?!api(?:/|$)).*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-
-Dengan demikian:
-
-/api/*
-
-tidak terkena SPA rewrite.
-
-11. Tambahkan health check
-
-Saya sangat menyarankan endpoint:
-
-GET /api/health
-
-Response:
-
-{
-  "success": true,
-  "service": "wedding-api"
-}
-
-Kemudian:
-
-https://munaharif-wedding.vercel.app/api/health
-
-harus selalu menjadi test pertama.
-
-Urutan debugging:
-
-/api/health
-      ↓
-/api/test-wedding/wishes
-      ↓
-database
-      ↓
-frontend
-
-Jangan langsung debug frontend.
-
-12. Tambahkan endpoint database health
-
-Setelah /api/health berhasil, buat:
-
-GET /api/health/db
-
-Contoh response:
-
-{
-  "success": true,
-  "database": "connected"
-}
-
-Jadi kita bisa membedakan:
-
-Case A
-/api/health
-❌
-
-→ Vercel Function problem.
-
-Case B
-/api/health
-✅
-
-
-/api/health/db
-❌
-
-→ database/environment problem.
-
-Case C
-/api/health/db
-✅
-
-
-/api/test-wedding/wishes
-❌
-
-→ Hono route/business logic problem.
-
-Ini jauh lebih cepat daripada menebak-nebak.
-
-13. Wishes API
-
-Endpoint final:
-
-GET /api/test-wedding/wishes
-
-Parameter:
-
-limit
-offset
+```http
+GET /api/wedding/:uid
+```
 
 Contoh:
 
-/api/test-wedding/wishes?limit=50&offset=0
+```http
+GET /api/wedding/test-wedding
+```
 
-Server harus melakukan validation:
+Backend harus mengambil:
 
-const limit = Math.min(
-    Math.max(Number(c.req.query('limit') || 20), 1),
-    100
+```sql
+SELECT
+  id,
+  uid,
+  title,
+  description,
+  groom_name,
+  bride_name,
+  parent_groom,
+  parent_bride,
+  wedding_date,
+  time,
+  location,
+  address,
+  maps_url,
+  maps_embed,
+  og_image,
+  favicon,
+  audio,
+  created_at,
+  updated_at
+FROM public.invitations
+WHERE uid = $1
+LIMIT 1;
+```
+
+Parameter:
+
+```text
+$1 = uid
+```
+
+Response harus memetakan semua column invitation yang dibutuhkan UI.
+
+Jangan mengubah nama database column tanpa alasan.
+
+---
+
+# 6. Agenda
+
+Untuk invitation:
+
+```text
+test-wedding
+```
+
+query:
+
+```sql
+SELECT
+  id,
+  invitation_uid,
+  title,
+  date,
+  start_time,
+  end_time,
+  location,
+  address,
+  order_index,
+  created_at
+FROM public.agenda
+WHERE invitation_uid = $1
+ORDER BY order_index ASC, date ASC;
+```
+
+Parameter:
+
+```text
+$1 = invitation.uid
+```
+
+Response sebaiknya berupa array:
+
+```json
+{
+  "id": 1,
+  "invitation_uid": "test-wedding",
+  "title": "Akad Nikah",
+  "date": "2026-12-20",
+  "start_time": "08:00:00",
+  "end_time": "10:00:00",
+  "location": "...",
+  "address": "...",
+  "order_index": 1
+}
+```
+
+Frontend kemudian menampilkan agenda tanpa harus mengetahui detail SQL.
+
+---
+
+# 7. Banks
+
+Query:
+
+```sql
+SELECT
+  id,
+  invitation_uid,
+  bank,
+  account_number,
+  account_name,
+  order_index,
+  created_at
+FROM public.banks
+WHERE invitation_uid = $1
+ORDER BY order_index ASC;
+```
+
+Response:
+
+```json
+{
+  "id": 1,
+  "invitation_uid": "test-wedding",
+  "bank": "BCA",
+  "account_number": "1234567890",
+  "account_name": "Muhammad Arif",
+  "order_index": 1
+}
+```
+
+Jangan mengekspos credential database.
+
+Data rekening adalah data invitation dan boleh ditampilkan sesuai kebutuhan desain undangan.
+
+---
+
+# 8. Wishes — PRIORITAS UTAMA
+
+Branch ini secara khusus memperbaiki client Wishes.
+
+Frontend saat ini memanggil:
+
+```text
+GET  /api/test-wedding/wishes?limit=50&offset=0
+POST /api/test-wedding/wishes
+GET  /api/test-wedding/wishes/check/:name
+DELETE /api/test-wedding/wishes/:id
+GET  /api/test-wedding/wishes/stats
+```
+
+Source `src/services/api.js` saat ini secara eksplisit memanggil endpoint tersebut.
+
+Backend harus menggunakan tabel:
+
+```text
+public.wishes
+```
+
+dengan:
+
+```text
+invitation_uid = 'test-wedding'
+```
+
+---
+
+## 8.1 GET Wishes
+
+Endpoint:
+
+```http
+GET /api/test-wedding/wishes?limit=50&offset=0
+```
+
+SQL:
+
+```sql
+SELECT
+  id,
+  invitation_uid,
+  name,
+  message,
+  attendance,
+  created_at
+FROM public.wishes
+WHERE invitation_uid = $1
+ORDER BY created_at DESC
+LIMIT $2
+OFFSET $3;
+```
+
+Parameter:
+
+```text
+$1 = "test-wedding"
+$2 = limit
+$3 = offset
+```
+
+Validasi:
+
+```text
+limit:
+1 - 100
+
+offset:
+>= 0
+```
+
+Jangan memasukkan nilai query string langsung ke SQL string.
+
+Gunakan parameterized query.
+
+---
+
+# 9. POST Wish
+
+Endpoint:
+
+```http
+POST /api/test-wedding/wishes
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "name": "Budi",
+  "message": "Selamat menempuh hidup baru!",
+  "attendance": "ATTENDING"
+}
+```
+
+SQL:
+
+```sql
+INSERT INTO public.wishes (
+  invitation_uid,
+  name,
+  message,
+  attendance
 )
-
-
-const offset = Math.max(
-    Number(c.req.query('offset') || 0),
-    0
+VALUES (
+  $1,
+  $2,
+  $3,
+  $4
 )
+RETURNING
+  id,
+  invitation_uid,
+  name,
+  message,
+  attendance,
+  created_at;
+```
 
-Jangan membiarkan user mengirim:
+Parameter:
 
-limit=999999999
-14. Response API dibuat konsisten
+```text
+$1 = "test-wedding"
+$2 = name
+$3 = message
+$4 = attendance
+```
 
-Saya sarankan semua API menggunakan format:
+Valid attendance:
 
+```text
+ATTENDING
+NOT_ATTENDING
+MAYBE
+```
+
+Jangan menerima nilai lain.
+
+---
+
+# 10. Check Duplicate Wish
+
+Endpoint:
+
+```http
+GET /api/test-wedding/wishes/check/:name
+```
+
+Query:
+
+```sql
+SELECT
+  id
+FROM public.wishes
+WHERE invitation_uid = $1
+  AND LOWER(name) = LOWER($2)
+LIMIT 1;
+```
+
+Response:
+
+Jika ditemukan:
+
+```json
 {
   "success": true,
-  "data": [],
-  "pagination": {
-    "limit": 50,
-    "offset": 0,
-    "total": 100
+  "data": {
+    "hasSubmitted": true
   }
 }
+```
 
-Error:
+Jika tidak ditemukan:
 
+```json
+{
+  "success": true,
+  "data": {
+    "hasSubmitted": false
+  }
+}
+```
+
+Jangan menganggap nama tamu sebagai unique global. Scope uniqueness harus berdasarkan:
+
+```text
+invitation_uid + name
+```
+
+---
+
+# 11. DELETE Wish
+
+Endpoint:
+
+```http
+DELETE /api/test-wedding/wishes/:id
+```
+
+SQL:
+
+```sql
+DELETE FROM public.wishes
+WHERE id = $1
+  AND invitation_uid = $2
+RETURNING id;
+```
+
+Parameter:
+
+```text
+$1 = wish id
+$2 = "test-wedding"
+```
+
+Penting:
+
+Jangan membuat DELETE yang hanya:
+
+```sql
+DELETE FROM wishes WHERE id = $1
+```
+
+karena dapat menghapus wish milik invitation lain jika ID diketahui.
+
+---
+
+# 12. Wishes Statistics
+
+Endpoint frontend saat ini:
+
+```text
+GET /api/test-wedding/wishes/stats
+```
+
+Gunakan:
+
+```sql
+SELECT
+  COUNT(*)::integer AS total,
+  COUNT(*) FILTER (
+    WHERE attendance = 'ATTENDING'
+  )::integer AS attending,
+  COUNT(*) FILTER (
+    WHERE attendance = 'NOT_ATTENDING'
+  )::integer AS not_attending,
+  COUNT(*) FILTER (
+    WHERE attendance = 'MAYBE'
+  )::integer AS maybe
+FROM public.wishes
+WHERE invitation_uid = $1;
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "total": 10,
+    "attending": 7,
+    "not_attending": 1,
+    "maybe": 2
+  }
+}
+```
+
+Sesuaikan nama response dengan contract yang sudah dipakai component frontend. Jangan mengubah frontend hanya untuk menyesuaikan SQL jika backend bisa mempertahankan contract yang sudah ada.
+
+---
+
+# 13. Sangat Penting: Jangan Salah Endpoint
+
+Branch `fix/wishes-api-client` saat ini menggunakan:
+
+```text
+/api/test-wedding/wishes
+```
+
+bukan:
+
+```text
+/api/:uid/wishes
+```
+
+untuk client yang sedang diperbaiki.
+
+Backend saat ini juga memasang:
+
+```text
+/api/test-wedding
+```
+
+untuk wishes.
+
+Jangan mengubah endpoint menjadi `/api/wishes` tanpa kebutuhan.
+
+---
+
+# 14. Error Handling API
+
+Semua error API harus menghasilkan JSON.
+
+Contoh:
+
+```json
 {
   "success": false,
   "error": {
     "code": "DATABASE_ERROR",
-    "message": "Unable to fetch wishes"
+    "message": "Database connection failed"
   }
 }
+```
 
-Jangan mencampur format response antar endpoint.
+Jangan mengembalikan HTML:
 
-15. Error handling global Hono
+```html
+<!doctype html>
+<html>
+...
+```
 
-Tambahkan:
+Ini penting karena frontend melakukan:
 
-app.onError((err, c) => {
-    console.error(err)
+```js
+response.json()
+```
 
+Jika Vercel mengembalikan HTML, browser akan menghasilkan:
 
-    return c.json({
-        success: false,
-        error: {
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Internal server error'
-        }
-    }, 500)
-})
+```text
+Unexpected token '<', "<!doctype "... is not valid JSON
+```
 
-Dengan demikian error backend tidak menjadi HTML error page yang membingungkan.
+Jadi error handling backend harus konsisten JSON.
 
-16. CORS
+---
 
-Karena frontend dan backend berada pada domain yang sama:
+# 15. Cegah React Error #31
 
-munaharif-wedding.vercel.app
+Frontend tidak boleh merender object `Error` langsung.
 
-sebenarnya tidak perlu CORS untuk komunikasi internal.
+Salah:
 
-Gunakan:
+```jsx
+<div>{error}</div>
+```
 
-fetch('/api/...')
+Benar:
 
-bukan:
+```jsx
+<div>{error?.message || "Failed to load wishes"}</div>
+```
 
-fetch('https://api-domain-lain...')
+Namun jangan melakukan perubahan ini sebelum memastikan API benar-benar mengembalikan JSON.
 
-Ini membuat deployment jauh lebih sederhana.
+Error React sebelumnya kemungkinan merupakan efek dari API response yang salah.
 
-17. Static assets
+---
 
-Assets wedding:
+# 16. Database Health Check
 
-public/assets/images/
+Backend branch sudah menyediakan:
 
-tetap dipertahankan.
+```http
+GET /api/health
+```
 
-Contoh:
+Expected:
 
-public/
-└── assets/
-    └── images/
-        ├── flower-white.png
-        ├── mandala.png
-        └── ...
-
-Frontend:
-
-<img src="/assets/images/flower-white.png" />
-
-Jangan:
-
-<img src="wedding-invitation/public/assets/images/..." />
-
-Path harus berdasarkan public root.
-
-18. Build harus bisa dijalankan lokal
-
-Sebelum deploy:
-
-bun install
-bun run build
-
-harus berhasil.
-
-Kemudian:
-
-bun run dev
-
-Frontend harus jalan.
-
-Dan API harus dites.
-
-Idealnya tambahkan script:
-
+```json
 {
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "typecheck": "...",
-    "test": "..."
-  }
+  "success": true,
+  "service": "wedding-api"
 }
-19. Testing wajib sebelum deploy
+```
 
-Saya akan membuat test matrix:
+Database health:
 
-Test	Expected
-/	200
-/api/health	200
-/api/health/db	200
-/api/test-wedding/wishes	200
-wishes pagination	200
-empty wishes	200
-invalid limit	400
-unknown API	404 JSON
-frontend asset	200
-React route	200
-production build	success
+```http
+GET /api/health/db
+```
+
+Expected:
+
+```json
+{
+  "success": true,
+  "database": "connected"
+}
+```
+
+Jika hasilnya:
+
+```text
+503
+DATABASE_ERROR
+```
+
+maka jangan mengubah query Wishes.
+
+Periksa:
+
+```text
+DATABASE_URL
+```
+
+terlebih dahulu.
+
+---
+
+# 17. Urutan Implementasi
+
+Junior developer / AI harus mengikuti urutan ini.
+
+## Phase 1 — Inspect
+
+Periksa:
+
+```text
+src/server/index.js
+src/server/db/client.js
+src/routes/wishes.js
+src/routes/wedding.js
+src/services/api.js
+package.json
+vercel.json
+api/[...route].js
+```
+
+Cari semua:
+
+```text
+SELECT
+INSERT
+UPDATE
+DELETE
+FROM invitations
+FROM agenda
+FROM banks
+FROM wishes
+```
+
+Tujuannya memastikan nama column yang digunakan query benar-benar cocok dengan Supabase.
+
+---
+
+## Phase 2 — Database Connection
+
+Pastikan:
+
+```text
+DATABASE_URL
+```
+
+terbaca backend.
+
+Tambahkan/test:
+
+```text
+GET /api/health/db
+```
+
+Jangan log password atau connection string lengkap.
+
+---
+
+## Phase 3 — Invitation
+
+Implementasikan:
+
+```text
+GET /api/wedding/:uid
+```
+
+Pastikan response mengambil:
+
+```text
+invitations
+agenda
+banks
+```
+
+dan memetakan:
+
+```text
+invitations.uid
+    ↓
+agenda.invitation_uid
+banks.invitation_uid
+```
+
+---
+
+## Phase 4 — Wishes GET
+
+Implementasikan:
+
+```text
+GET /api/test-wedding/wishes?limit=50&offset=0
+```
+
+Test langsung dengan Postman.
+
+Response harus JSON.
+
+---
+
+## Phase 5 — Wishes POST
+
+Implementasikan:
+
+```text
+POST /api/test-wedding/wishes
+```
+
+Body:
+
+```json
+{
+  "name": "Test User",
+  "message": "Test wish",
+  "attendance": "ATTENDING"
+}
+```
+
+Pastikan row masuk ke Supabase.
+
+---
+
+## Phase 6 — Check
+
+Test:
+
+```text
+GET /api/test-wedding/wishes/check/Test%20User
+```
+
+---
+
+## Phase 7 — Stats
+
+Test:
+
+```text
+GET /api/test-wedding/wishes/stats
+```
+
+---
+
+## Phase 8 — Delete
+
+Test DELETE hanya pada data test.
+
+---
+
+# 18. Test Database Langsung di Supabase
+
+Sebelum debugging frontend, jalankan:
+
+```sql
+SELECT * 
+FROM public.invitations
+WHERE uid = 'test-wedding';
+
+SELECT *
+FROM public.agenda
+WHERE invitation_uid = 'test-wedding'
+ORDER BY order_index;
+
+SELECT *
+FROM public.banks
+WHERE invitation_uid = 'test-wedding'
+ORDER BY order_index;
+
+SELECT *
+FROM public.wishes
+WHERE invitation_uid = 'test-wedding'
+ORDER BY created_at DESC;
+```
+
+Semua query harus dapat dijalankan.
+
+---
+
+# 19. Test dengan Postman
+
+## Health
+
+```http
+GET https://YOUR_DOMAIN/api/health
+```
+
+## DB
+
+```http
+GET https://YOUR_DOMAIN/api/health/db
+```
+
+## Invitation
+
+```http
+GET https://YOUR_DOMAIN/api/wedding/test-wedding
+```
+
+## Wishes GET
+
+```http
+GET https://YOUR_DOMAIN/api/test-wedding/wishes?limit=50&offset=0
+```
+
+## Wishes POST
+
+```http
+POST https://YOUR_DOMAIN/api/test-wedding/wishes
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "name": "Postman Test",
+  "message": "Testing Supabase wishes",
+  "attendance": "ATTENDING"
+}
+```
+
+## Wishes Check
+
+```http
+GET https://YOUR_DOMAIN/api/test-wedding/wishes/check/Postman%20Test
+```
+
+## Wishes Stats
+
+```http
+GET https://YOUR_DOMAIN/api/test-wedding/wishes/stats
+```
+
+---
+
+# 20. Test Production
+
+Urutan wajib:
+
+```text
+1. /api/health
+2. /api/health/db
+3. /api/wedding/test-wedding
+4. /api/test-wedding/wishes
+5. POST /api/test-wedding/wishes
+6. /api/test-wedding/wishes/check/:name
+7. /api/test-wedding/wishes/stats
+8. Frontend Open Invitation
+9. Wishes tampil
+10. Submit Wishes
+```
+
+Jangan langsung menguji frontend.
+
+---
+
+# 21. Acceptance Criteria
+
+Implementasi dianggap selesai jika:
+
+### Database
+
+- [ ] `invitations` terbaca
+- [ ] `agenda` terbaca
+- [ ] `banks` terbaca
+- [ ] `wishes` terbaca
+- [ ] foreign key menggunakan `invitation_uid → invitations.uid`
+
+### Backend
+
+- [ ] `/api/health` menghasilkan JSON
+- [ ] `/api/health/db` menghasilkan connected
+- [ ] `/api/wedding/test-wedding` menghasilkan JSON
+- [ ] `/api/test-wedding/wishes` menghasilkan JSON
+- [ ] POST wishes berhasil
+- [ ] duplicate check berhasil
+- [ ] stats berhasil
+- [ ] DELETE berhasil
+- [ ] error response selalu JSON
+
+### Frontend
+
+- [ ] Invitation berhasil dibuka
+- [ ] data groom/bride tampil
+- [ ] agenda tampil
+- [ ] bank tampil
+- [ ] wishes tampil
+- [ ] form wish berhasil submit
+- [ ] attendance tersimpan
+- [ ] tidak ada `Unexpected token '<'`
+- [ ] tidak ada React error #31
+- [ ] tidak merender object Error secara langsung
+
+### Production
+
+- [ ] Vercel Function terdeteksi
+- [ ] API tidak mengembalikan Vercel `NOT_FOUND`
+- [ ] API tidak mengembalikan `<!doctype html>`
+- [ ] `DATABASE_URL` hanya tersedia di server
+- [ ] tidak ada secret yang masuk Git
+- [ ] production API berhasil dites via Postman
+
+---
+
+# 22. Hal yang TIDAK BOLEH Dilakukan
+
+Junior/AI harus berhenti dan meminta review sebelum:
+
+- Mengubah schema Supabase.
+- Menghapus tabel.
+- Mengubah nama column.
+- Mengubah `uid`.
+- Mengubah foreign key.
+- Mengubah API contract tanpa alasan.
+- Mengganti `DATABASE_URL` dengan credential hardcoded.
+- Menaruh password Supabase di frontend.
+- Menggunakan `VITE_DATABASE_URL`.
+- Menyalin seluruh logic database ke React.
+- Membuat API kedua yang menduplikasi Hono.
+- Mengatasi error API dengan hardcoded mock data.
+- Mengembalikan `index.html` untuk request `/api/*`.
+
+---
+
+# 23. Prinsip Implementasi
+
+Gunakan prinsip:
+
+```text
+Supabase PostgreSQL
+        ↓
+     pg Pool
+        ↓
+      Hono
+        ↓
+    API JSON
+        ↓
+React/Vite
+```
+
+Database adalah source of truth untuk data.
+
+Hono adalah source of truth untuk business/API logic.
+
+React hanya bertugas mengambil dan menampilkan data.
+
+---
+
+# 24. Final Deliverables
+
+Setelah selesai, junior/AI harus memberikan:
+
+1. Daftar file yang diubah.
+2. SQL/query yang digunakan.
+3. Mapping column database → API response.
+4. Endpoint yang berhasil.
+5. Screenshot/hasil Postman.
+6. Hasil `bun run build`.
+7. Hasil test production.
+8. Penjelasan jika ada column database yang tidak digunakan.
+9. Penjelasan jika ada perbedaan antara API contract lama dan schema baru.
+
+Jangan mengklaim selesai hanya karena build berhasil.
+
+**Definition of Done adalah API production berhasil membaca dan menulis data Supabase.**

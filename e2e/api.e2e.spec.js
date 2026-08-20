@@ -95,17 +95,33 @@ vi.mock("../src/server/db/client.js", () => {
       }
 
       // Wishes list query
-      if (sql.includes("SELECT id, name, message, attendance")) {
-        return { rows: insertedWishes };
+      if (
+        sql.includes("SELECT id") &&
+        sql.includes("name") &&
+        sql.includes("message") &&
+        sql.includes("attendance") &&
+        sql.includes("FROM wishes")
+      ) {
+        // Filter by invitation_uid if present in params
+        let filteredWishes = insertedWishes;
+        if (params && params.length > 0 && params[0] === "test-wedding") {
+          // In real DB, all wishes would have invitation_uid, but in mock we just return all
+          filteredWishes = insertedWishes;
+        }
+        return { rows: filteredWishes };
       }
 
       // Wishes count query
-      if (sql.includes("SELECT COUNT(*)") && !sql.includes("FILTER")) {
+      if (
+        sql.includes("SELECT COUNT(*)") &&
+        !sql.includes("FILTER") &&
+        sql.includes("FROM wishes")
+      ) {
         return { rows: [{ count: String(insertedWishes.length) }] };
       }
 
       // Stats query
-      if (sql.includes("FILTER")) {
+      if (sql.includes("FILTER") && sql.includes("FROM wishes")) {
         const attending = insertedWishes.filter(
           (w) => w.attendance === "ATTENDING",
         ).length;
@@ -127,9 +143,13 @@ vi.mock("../src/server/db/client.js", () => {
         };
       }
 
-      // Check existing wish (by name)
-      if (sql.includes("SELECT id FROM wishes WHERE") && sql.includes("name")) {
-        const name = params[0];
+      // Check existing wish (by name and invitation_uid)
+      if (
+        sql.includes("SELECT id FROM wishes WHERE") &&
+        sql.includes("name") &&
+        sql.includes("invitation_uid")
+      ) {
+        const name = params[1]; // params[0] is invitation_uid, params[1] is name
         const existing = insertedWishes.find((w) => w.name === name);
         if (existing) {
           return { rows: [{ id: existing.id }] };
@@ -139,11 +159,12 @@ vi.mock("../src/server/db/client.js", () => {
 
       // Insert wish
       if (sql.includes("INSERT INTO wishes")) {
+        // params: [invitationUid, name, message, attendance]
         const newWish = {
           id: nextId++,
-          name: params[0],
-          message: params[1],
-          attendance: params[2],
+          name: params[1],
+          message: params[2],
+          attendance: params[3],
           created_at: new Date().toISOString(),
         };
         insertedWishes.push(newWish);

@@ -8,25 +8,30 @@ import { NotFoundError, ConflictError } from "../lib/errors.js";
 /**
  * Get all wishes with pagination
  * @param {Object} params - Query parameters
+ * @param {string} params.invitationUid - Invitation UID
  * @param {number} params.limit - Maximum number of wishes to return (1-100)
  * @param {number} params.offset - Number of wishes to skip
  * @returns {Promise<Object>} Response with wishes data and pagination
  */
-export async function getWishes({ limit, offset }) {
+export async function getWishes({ invitationUid, limit, offset }) {
   const pool = await getDbClient();
 
   // Get wishes
   const result = await pool.query(
-    `SELECT id, name, message, attendance,
+    `SELECT id, invitation_uid, name, message, attendance,
               created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as created_at
-       FROM wishes
-       ORDER BY created_at DESC
-       LIMIT $1 OFFSET $2`,
-    [limit, offset],
+         FROM wishes
+        WHERE invitation_uid = $1
+        ORDER BY created_at DESC
+        LIMIT $2 OFFSET $3`,
+    [invitationUid, limit, offset],
   );
 
   // Get total count
-  const countResult = await pool.query("SELECT COUNT(*) FROM wishes");
+  const countResult = await pool.query(
+    "SELECT COUNT(*) FROM wishes WHERE invitation_uid = $1",
+    [invitationUid],
+  );
 
   return {
     success: true,
@@ -42,18 +47,19 @@ export async function getWishes({ limit, offset }) {
 /**
  * Create a new wish
  * @param {Object} params - Wish data
+ * @param {string} params.invitationUid - Invitation UID
  * @param {string} params.name - Guest name
  * @param {string} params.message - Wish message
  * @param {string} params.attendance - Attendance status
  * @returns {Promise<Object>} Response with created wish
  */
-export async function createWish({ name, message, attendance }) {
+export async function createWish({ invitationUid, name, message, attendance }) {
   const pool = await getDbClient();
 
-  // Check if guest has already submitted a wish
+  // Check if guest has already submitted a wish for this invitation
   const existingWish = await pool.query(
-    "SELECT id FROM wishes WHERE name = $1",
-    [name],
+    "SELECT id FROM wishes WHERE invitation_uid = $1 AND LOWER(name) = LOWER($2)",
+    [invitationUid, name],
   );
 
   if (existingWish.rows.length > 0) {
@@ -66,11 +72,11 @@ export async function createWish({ name, message, attendance }) {
   // Insert wish
   try {
     const result = await pool.query(
-      `INSERT INTO wishes (name, message, attendance, created_at)
-         VALUES ($1, $2, $3, CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')
-         RETURNING id, name, message, attendance,
+      `INSERT INTO wishes (invitation_uid, name, message, attendance, created_at)
+         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')
+         RETURNING id, invitation_uid, name, message, attendance,
                    created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as created_at`,
-      [name, message, attendance],
+      [invitationUid, name, message, attendance],
     );
 
     return { success: true, data: result.rows[0] };
@@ -89,13 +95,14 @@ export async function createWish({ name, message, attendance }) {
 /**
  * Delete a wish
  * @param {number} id - Wish ID
+ * @param {string} invitationUid - Invitation UID (for security)
  * @returns {Promise<Object>} Response with deletion confirmation
  */
-export async function deleteWish(id) {
+export async function deleteWish(id, invitationUid) {
   const pool = await getDbClient();
   const result = await pool.query(
-    "DELETE FROM wishes WHERE id = $1 RETURNING id",
-    [id],
+    "DELETE FROM wishes WHERE id = $1 AND invitation_uid = $2 RETURNING id",
+    [id, invitationUid],
   );
 
   if (result.rows.length === 0) {
@@ -107,18 +114,19 @@ export async function deleteWish(id) {
 
 /**
  * Check if guest has already submitted a wish
+ * @param {string} invitationUid - Invitation UID
  * @param {string} name - Guest name
  * @returns {Promise<Object>} Response with hasSubmitted boolean
  */
-export async function checkWish(name) {
+export async function checkWish(invitationUid, name) {
   if (!name || name.trim().length === 0) {
     return { success: false, error: "Name is required" };
   }
 
   const pool = await getDbClient();
   const existingWish = await pool.query(
-    "SELECT id FROM wishes WHERE name = $1",
-    [name.trim()],
+    "SELECT id FROM wishes WHERE invitation_uid = $1 AND LOWER(name) = LOWER($2)",
+    [invitationUid, name.trim()],
   );
 
   return {
@@ -129,9 +137,10 @@ export async function checkWish(name) {
 
 /**
  * Get attendance statistics
+ * @param {string} invitationUid - Invitation UID
  * @returns {Promise<Object>} Response with stats data
  */
-export async function getWishStats() {
+export async function getWishStats(invitationUid) {
   const pool = await getDbClient();
   const result = await pool.query(
     `SELECT
@@ -139,7 +148,9 @@ export async function getWishStats() {
         COUNT(*) FILTER (WHERE attendance = 'NOT_ATTENDING') as not_attending,
         COUNT(*) FILTER (WHERE attendance = 'MAYBE') as maybe,
         COUNT(*) as total
-     FROM wishes`,
+     FROM wishes
+     WHERE invitation_uid = $1`,
+    [invitationUid],
   );
 
   return { success: true, data: result.rows[0] };

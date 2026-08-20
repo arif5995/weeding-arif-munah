@@ -9,7 +9,7 @@ import {
   MessageCircleHeart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useBankData } from "@/features/invitation/hooks/use-invitation-data";
 import { DURATION, useReducedMotionFlag } from "@/lib/motion";
 import { useTranslation } from "@/lib/i18n";
 
@@ -49,21 +49,21 @@ const baseMenuItems = [
  * @returns {JSX.Element} A JSX element containing the animated bottom navigation bar with auto-detection.
  */
 const BottomBar = () => {
-  const config = useConfig();
+  const reduceMotion = useReducedMotionFlag();
+  const { banks, isLoading } = useBankData();
   const { t } = useTranslation();
   const [active, setActive] = React.useState("home");
-  const reduceMotion = useReducedMotionFlag();
 
   // Filter menu items based on config - hide gifts when no banks configured
   const menuItems = useMemo(() => {
-    const hasBanks = config?.banks && config.banks.length > 0;
+    const hasBanks = banks && banks.length > 0;
     return baseMenuItems.filter((item) => {
       if (item.requiresBanks && !hasBanks) {
         return false;
       }
       return true;
     });
-  }, [config?.banks]);
+  }, [banks]);
 
   // Function to handle smooth scrolling when clicking menu items
   const handleMenuClick = useCallback((e, href, id) => {
@@ -121,6 +121,35 @@ const BottomBar = () => {
       observer.disconnect();
     };
   }, [menuItems]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4",
+        )}
+      >
+        <motion.div
+          className={cn("w-auto")}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: DURATION.base }}
+        >
+          <div
+            className={cn("h-2 w-32 bg-gray-200 rounded-full overflow-hidden")}
+          >
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 1, ease: "easeInOut", repeat: Infinity }}
+              className={cn("h-full bg-brand-primary rounded-full")}
+            />
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div

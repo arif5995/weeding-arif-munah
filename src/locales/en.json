@@ -25,7 +25,11 @@
     "days": "Days",
     "hours": "Hours",
     "minutes": "Minutes",
-    "seconds": "Seconds"
+    "seconds": "Seconds",
+    "loading": "Loading invitation...",
+    "errorTitle": "Failed to Load Invitation",
+    "notFound": "Invitation Not Found",
+    "notFoundDesc": "Please check your URL or contact the organizer."
   },
   "events": {
     "saveTheDate": "Save the Date",
@@ -34,12 +38,15 @@
     "addToCalendar": "Add to Calendar",
     "googleCalendar": "Google Calendar",
     "appleCalendar": "Apple Calendar",
-    "outlookCalendar": "Outlook Calendar"
+    "outlookCalendar": "Outlook Calendar",
+    "errorTitle": "Failed to Load Events",
+    "emptyState": "No events scheduled yet."
   },
   "location": {
     "eventVenue": "Event Venue",
     "title": "Location",
-    "viewMap": "View Map"
+    "viewMap": "View Map",
+    "errorTitle": "Failed to Load Location"
   },
   "gifts": {
     "subTitle": "Wedding Gift",
@@ -47,7 +54,8 @@
     "message": "Insya Allah, we will channel all gifts received to masjids and charitable institutions in need",
     "copy": "Copy",
     "copied": "Copied!",
-    "accountName": "Account Name"
+    "accountName": "Account Name",
+    "errorTitle": "Failed to Load Gifts"
   },
   "wishes": {
     "subTitle": "Send Your Best Wishes and Prayers",
