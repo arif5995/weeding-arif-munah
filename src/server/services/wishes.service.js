@@ -17,7 +17,7 @@ export async function getWishes({ limit, offset }) {
 
   // Get wishes
   const result = await pool.query(
-    `SELECT id, name, message, attendance,
+    `SELECT id, guest_name, message, attendance,
               created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as created_at
        FROM wishes
        ORDER BY created_at DESC
@@ -52,7 +52,7 @@ export async function createWish({ name, message, attendance }) {
 
   // Check if guest has already submitted a wish
   const existingWish = await pool.query(
-    "SELECT id FROM wishes WHERE name = $1",
+    "SELECT id FROM wishes WHERE guest_name = $1",
     [name],
   );
 
@@ -66,7 +66,7 @@ export async function createWish({ name, message, attendance }) {
   // Insert wish
   try {
     const result = await pool.query(
-      `INSERT INTO wishes (name, message, attendance, created_at)
+      `INSERT INTO wishes (guest_name, message, attendance, created_at)
          VALUES ($1, $2, $3, CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')
          RETURNING id, name, message, attendance,
                    created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as created_at`,
@@ -117,7 +117,7 @@ export async function checkWish(name) {
 
   const pool = await getDbClient();
   const existingWish = await pool.query(
-    "SELECT id FROM wishes WHERE name = $1",
+    "SELECT id FROM wishes WHERE guest_name = $1",
     [name.trim()],
   );
 
