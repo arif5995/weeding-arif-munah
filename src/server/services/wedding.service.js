@@ -71,3 +71,74 @@ export async function getInvitation(uid) {
 
   return { success: true, data };
 }
+
+/**
+ * Get bank accounts for a specific invitation
+ * @param {string} uid - Invitation UID
+ * @returns {Promise<Object>} Response with bank accounts data
+ */
+export async function getBanks(uid) {
+  const pool = await getDbClient();
+
+  // Check if invitation exists
+  const invitationResult = await pool.query(
+    "SELECT uid FROM invitations WHERE uid = $1",
+    [uid],
+  );
+
+  if (invitationResult.rows.length === 0) {
+    throw new NotFoundError("Invitation not found");
+  }
+
+  // Get bank accounts
+  const banksResult = await pool.query(
+    "SELECT id, bank, account_number, account_name FROM banks WHERE invitation_uid = $1 ORDER BY order_index",
+    [uid],
+  );
+
+  const data = banksResult.rows.map((b) => ({
+    id: b.id,
+    bankName: b.bank,
+    accountNumber: b.account_number,
+    accountName: b.account_name,
+  }));
+
+  return { success: true, data };
+}
+
+/**
+ * Get agenda items for a specific invitation
+ * @param {string} uid - Invitation UID
+ * @returns {Promise<Object>} Response with agenda data
+ */
+export async function getAgenda(uid) {
+  const pool = await getDbClient();
+
+  // Check if invitation exists
+  const invitationResult = await pool.query(
+    "SELECT uid FROM invitations WHERE uid = $1",
+    [uid],
+  );
+
+  if (invitationResult.rows.length === 0) {
+    throw new NotFoundError("Invitation not found");
+  }
+
+  // Get agenda items
+  const agendaResult = await pool.query(
+    "SELECT id, title, date, start_time, end_time, location, address FROM agenda WHERE invitation_uid = $1 ORDER BY order_index, date",
+    [uid],
+  );
+
+  const data = agendaResult.rows.map((a) => ({
+    id: a.id,
+    title: a.title,
+    date: a.date,
+    startTime: a.start_time,
+    endTime: a.end_time,
+    location: a.location,
+    address: a.address,
+  }));
+
+  return { success: true, data };
+}

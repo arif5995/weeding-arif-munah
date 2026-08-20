@@ -56,7 +56,7 @@ export default function Wishes() {
     const checkSubmissionStatus = async () => {
       if (uid && guestName && isNameFromInvitation) {
         try {
-          const response = await checkWishSubmitted(guestName);
+          const response = await checkWishSubmitted(uid, guestName);
           if (response.success && response.hasSubmitted) {
             setHasSubmittedWish(true);
           }
@@ -101,7 +101,7 @@ export default function Wishes() {
   } = useQuery({
     queryKey: ["wishes", uid],
     queryFn: async () => {
-      const response = await fetchWishes({
+      const response = await fetchWishes(uid, {
         limit: 50,
         offset: 0,
       });
@@ -118,7 +118,7 @@ export default function Wishes() {
 
   // Mutation for creating wishes
   const createWishMutation = useMutation({
-    mutationFn: (wishData) => createWish(wishData),
+    mutationFn: (wishData) => createWish(uid, wishData),
     onSuccess: (response) => {
       if (response.success) {
         // Optimistically update the cache

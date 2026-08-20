@@ -1,9 +1,8 @@
 import { useInvitation } from "./use-invitation";
-import staticConfig from "@/config/config";
 
 /**
  * Custom hook to access wedding configuration
- * Returns config from API if available, otherwise falls back to static config
+ * Returns config from API - no fallback to static config
  *
  * @returns {object} Wedding configuration data
  *
@@ -14,6 +13,7 @@ import staticConfig from "@/config/config";
 export function useConfig() {
   const { config } = useInvitation();
 
-  // Return API config if available, otherwise static config
-  return config || staticConfig.data;
+  // Return API config - no static fallback
+  // Components should handle loading/error states
+  return config;
 }

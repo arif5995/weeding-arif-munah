@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Music, PauseCircle, PlayCircle } from "lucide-react";
-import { useConfig } from "@/features/invitation/hooks/use-config";
+import { useInvitationData } from "@/features/invitation/hooks/use-invitation-data";
 import BottomBar from "@/components/layout/bottom-bar";
 import { useMotionPreset } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ import PhoneFrame from "./phone-frame";
  * @param {Function} props.audioControls.toggle - Toggle audio play/pause
  */
 const Layout = ({ children, audioControls }) => {
-  const config = useConfig();
+  const { invitation, isLoading } = useInvitationData();
   const [showToast, setShowToast] = useState(false);
   const fade = useMotionPreset("fade");
   const fadeUp = useMotionPreset("fadeUp");
@@ -32,13 +32,38 @@ const Layout = ({ children, audioControls }) => {
       setShowToast(true);
       const timer = setTimeout(
         () => setShowToast(false),
-        config.audio?.toastDuration || 3000,
+        invitation?.audio?.toastDuration || 3000,
       );
       return () => clearTimeout(timer);
     } else {
       setShowToast(false);
     }
-  }, [isPlaying, config.audio?.toastDuration]);
+  }, [isPlaying, invitation?.audio?.toastDuration]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <PhoneFrame>
+        <motion.div
+          className={cn("min-h-screen bg-brand-bg relative overflow-hidden")}
+          variants={fade}
+          initial="hidden"
+          animate="visible"
+        >
+          <div className={cn("flex items-center justify-center h-screen")}>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: 44 }}
+              transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }}
+              className={cn("h-px bg-brand-primary")}
+            />
+          </div>
+        </motion.div>
+      </PhoneFrame>
+    );
+  }
+
+  const config = invitation;
 
   return (
     <PhoneFrame>
