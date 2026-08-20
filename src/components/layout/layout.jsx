@@ -41,7 +41,7 @@ const Layout = ({ children, audioControls }) => {
     }
   }, [isPlaying, invitation?.audio?.toastDuration]);
 
-// Loading state
+  // Loading state
   if (isLoading) {
     return (
       <PhoneFrame>
@@ -56,7 +56,12 @@ const Layout = ({ children, audioControls }) => {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: 44 }}
-              transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }}
+              transition={{
+                duration: 1.2,
+                ease: "easeOut",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
               className={cn("h-px bg-brand-primary")}
             />
           </div>
